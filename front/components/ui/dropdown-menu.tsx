@@ -89,6 +89,34 @@ function DropdownMenuSeparator({
   )
 }
 
+function DropdownMenuCheckboxItem({
+  className,
+  checked,
+  onCheckedChange,
+  children,
+  ...props
+}: MenuPrimitive.Item.Props & {
+  checked?: boolean
+  onCheckedChange?: (checked: boolean) => void
+}) {
+  return (
+    <MenuPrimitive.Item
+      data-slot="dropdown-menu-checkbox-item"
+      className={cn(
+        "relative flex cursor-pointer select-none items-center gap-2 rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+        className
+      )}
+      onClick={() => onCheckedChange?.(!checked)}
+      {...props}
+    >
+      <span className="absolute left-2 flex size-3.5 items-center justify-center">
+        {checked && <CheckIcon className="size-4" />}
+      </span>
+      {children}
+    </MenuPrimitive.Item>
+  )
+}
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -97,4 +125,5 @@ export {
   DropdownMenuLabel,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
 }
