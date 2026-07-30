@@ -49,6 +49,9 @@
         </div>
         <div class="px-5 py-3 border-t border-gray-50 flex gap-2">
             <a href="{{ route('admin.plans.edit', $plan) }}" class="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-md transition-colors">Edit</a>
+            <button onclick="toggleActive({{ $plan->id }}, this)" class="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors border {{ $plan->is_active ? 'text-amber-600 bg-amber-50 border-amber-100 hover:bg-amber-100' : 'text-emerald-600 bg-emerald-50 border-emerald-100 hover:bg-emerald-100' }}">
+                {{ $plan->is_active ? 'Deactivate' : 'Activate' }}
+            </button>
             @if ($plan->restaurants_count === 0)
             <button onclick="deletePlan({{ $plan->id }})" class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 hover:bg-red-100 rounded-md transition-colors">Delete</button>
             @endif
