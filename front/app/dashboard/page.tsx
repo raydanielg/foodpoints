@@ -13,6 +13,13 @@ import {
   EyeIcon,
   EyeOffIcon,
   SparklesIcon,
+  ArrowRightIcon,
+  DownloadIcon,
+  SmartphoneIcon,
+  CreditCardIcon,
+  BanknoteIcon,
+  CircleCheckIcon,
+  XCircleIcon,
 } from "lucide-react"
 import {
   Area,
@@ -46,7 +53,17 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 import { Spinner } from "@/components/ui/spinner"
-import { api, type RestaurantStats, type Restaurant } from "@/lib/api"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Link from "next/link"
+import { api, type RestaurantStats, type Restaurant, type Payment } from "@/lib/api"
 
 function formatCurrency(value: string | number) {
   const num = typeof value === "string" ? parseFloat(value) : value
@@ -148,17 +165,99 @@ const radarChartConfig = {
   orders: { label: "Orders", color: "var(--chart-1)" },
 } satisfies ChartConfig
 
+function formatDateTime(dateStr: string) {
+  const d = new Date(dateStr)
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) + ", " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+}
+
+function getMethodIcon(method: string) {
+  switch (method) {
+    case "mobile_money":
+      return <SmartphoneIcon className="size-3.5 text-blue-500" />
+    case "card":
+      return <CreditCardIcon className="size-3.5 text-purple-500" />
+    case "cash":
+      return <BanknoteIcon className="size-3.5 text-emerald-500" />
+    default:
+      return null
+  }
+}
+
+function getPaymentStatusBadge(status: string) {
+  switch (status) {
+    case "completed":
+      return (
+        <Badge variant="outline" className="gap-1 px-1.5 text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30">
+          <CircleCheckIcon className="size-3" />
+          completed
+        </Badge>
+      )
+    case "pending":
+      return (
+        <Badge variant="outline" className="gap-1 px-1.5 text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-950/30">
+          <ClockIcon className="size-3" />
+          pending
+        </Badge>
+      )
+    case "failed":
+      return (
+        <Badge variant="outline" className="gap-1 px-1.5 text-red-600 border-red-200 bg-red-50 dark:bg-red-950/30">
+          <XCircleIcon className="size-3" />
+          failed
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{status}</Badge>
+  }
+}
+
+function getOrderStatusBadge(status: string) {
+  if (status === "served" || status === "completed") {
+    return (
+      <Badge variant="outline" className="gap-1 px-1.5 text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30">
+        <CircleCheckIcon className="size-3" />
+        {status}
+      </Badge>
+    )
+  }
+  if (status === "preparing") {
+    return (
+      <Badge variant="outline" className="gap-1 px-1.5 text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-950/30">
+        <ClockIcon className="size-3" />
+        {status}
+      </Badge>
+    )
+  }
+  return (
+    <Badge variant="outline" className="gap-1 px-1.5 text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-950/30">
+      <ClockIcon className="size-3" />
+      {status}
+    </Badge>
+  )
+}
+
+function exportToCSV(filename: string, headers: string[], rows: (string | number)[][]) {
+  const csv = [headers.join(","), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, "\"")}"`).join(","))].join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  const link = document.createElement("a")
+  link.href = URL.createObjectURL(blob)
+  link.download = filename
+  link.click()
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = React.useState<RestaurantStats | null>(null)
   const [restaurant, setRestaurant] = React.useState<Restaurant | null>(null)
+  const [payments, setPayments] = React.useState<Payment[]>([])
   const [loading, setLoading] = React.useState(true)
   const [revenueHidden, setRevenueHidden] = React.useState(true)
 
   React.useEffect(() => {
-    Promise.all([api.getStats(), api.getRestaurant()])
-      .then(([statsRes, restRes]) => {
+    Promise.all([api.getStats(), api.getRestaurant(), api.getPayments()])
+      .then(([statsRes, restRes, payRes]) => {
         setStats(statsRes.stats)
         setRestaurant(restRes.restaurant)
+        setPayments(payRes.payments.slice(0, 8))
       })
       .catch(() => {})
       .finally(() => setLoading(false))
