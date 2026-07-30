@@ -589,8 +589,45 @@ class RestaurantController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        // Fallback: if payment still pending, query Snippe API directly
+        // (webhook may not have arrived yet)
+        if ($payment->status === 'pending' && $payment->snippe_reference) {
+            $snippe = app(SnippeService::class);
+            $result = $snippe->getPaymentStatus($payment->snippe_reference);
+
+            if ($result['success'] && isset($result['data']['status'])) {
+                $snippeStatus = $result['data']['status'];
+
+                if ($snippeStatus === 'completed' && $payment->status === 'pending') {
+                    DB::beginTransaction();
+                    try {
+                        $payment->update(['status' => 'completed']);
+
+                        $plan = Plan::find($payment->plan_id);
+                        if ($plan) {
+                            $restaurant->update([
+                                'plan_id' => $plan->id,
+                                'subscription_status' => 'active',
+                                'subscription_expires_at' => $plan->duration_days > 0
+                                    ? now()->addDays($plan->duration_days)
+                                    : null,
+                            ]);
+                        }
+
+                        DB::commit();
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                    }
+                } elseif ($snippeStatus === 'failed' && $payment->status === 'pending') {
+                    $payment->update(['status' => 'failed']);
+                }
+            }
+        }
+
+        $restaurant = $restaurant->fresh();
+
         return response()->json([
-            'status' => $payment->status,
+            'status' => $payment->fresh()->status,
             'subscription_status' => $restaurant->subscription_status,
             'plan_id' => $restaurant->plan_id,
         ]);
