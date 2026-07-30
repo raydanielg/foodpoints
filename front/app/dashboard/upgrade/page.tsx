@@ -341,17 +341,34 @@ export default function UpgradePage() {
               </DialogDescription>
             </div>
           ) : paymentStatus === "pending" ? (
-            <div className="flex flex-col items-center gap-4 py-6 text-center">
-              <div className="flex size-16 items-center justify-center rounded-full bg-blue-100">
-                <LoaderIcon className="size-8 text-blue-600 animate-spin" />
-              </div>
+            <div className="flex flex-col gap-4 py-4">
               <DialogTitle>Payment in Progress</DialogTitle>
-              <DialogDescription className="max-w-sm">
+              <DialogDescription>
                 {paymentMessage || "Please complete the payment on your phone. We are checking your payment status automatically..."}
               </DialogDescription>
-              <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
-                <ClockIcon className="size-4 animate-pulse" />
-                Waiting for payment confirmation...
+              <div className="flex w-full flex-col gap-2 [--radius:1rem]">
+                <Item variant="muted">
+                  <ItemMedia>
+                    <Spinner className="size-5" />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle className="line-clamp-1">
+                      {selectedPlan?.name} — Processing payment...
+                    </ItemTitle>
+                    <ItemDescription className="text-xs">
+                      {paymentMethod === "mobile_money" ? "Mobile Money" : "Card"} • Waiting for confirmation
+                    </ItemDescription>
+                  </ItemContent>
+                  <ItemContent className="flex-none justify-end">
+                    <span className="text-sm font-semibold tabular-nums">
+                      {selectedPlan && formatPrice(selectedPlan.price)} {selectedPlan?.currency}
+                    </span>
+                  </ItemContent>
+                </Item>
+                <div className="flex items-center gap-2 px-3 text-xs text-muted-foreground">
+                  <ClockIcon className="size-3.5 animate-pulse" />
+                  Checking payment status automatically...
+                </div>
               </div>
             </div>
           ) : paymentStatus === "failed" ? (
