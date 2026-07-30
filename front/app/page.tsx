@@ -16,6 +16,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { HeroVideo } from "@/components/hero-video"
+import { ShowcaseSection } from "@/components/showcase-section"
 import {
   Item,
   ItemContent,
@@ -257,6 +258,9 @@ export default function Home() {
           </span>
         </div>
       </section>
+
+      {/* ===== Showcase ===== */}
+      <ShowcaseSection />
 
       {/* ===== Features ===== */}
       <section id="features" className="border-t py-16 lg:py-24">
