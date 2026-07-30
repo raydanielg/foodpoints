@@ -4,9 +4,6 @@ import {
   QrCodeIcon,
   WalletIcon,
   UtensilsCrossedIcon,
-  ChefHatIcon,
-  ClipboardListIcon,
-  BarChart3Icon,
   SmartphoneIcon,
   MenuIcon,
   CheckCircle2Icon,
@@ -17,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { HeroVideo } from "@/components/hero-video"
 import { ShowcaseSection } from "@/components/showcase-section"
+import { FeatureGrid } from "@/components/feature-grid"
 import {
   Item,
   ItemContent,
@@ -30,39 +28,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-
-const features = [
-  {
-    icon: QrCodeIcon,
-    title: "QR Code Ordering",
-    desc: "Customers scan a QR code on their table to instantly view your menu and place orders — no app needed.",
-  },
-  {
-    icon: WalletIcon,
-    title: "Split Payments",
-    desc: "Let customers split bills easily. Multiple payment methods supported with automatic VAT calculation.",
-  },
-  {
-    icon: ChefHatIcon,
-    title: "Kitchen Display",
-    desc: "Real-time kitchen display system. Orders flow directly to the kitchen with prep time tracking.",
-  },
-  {
-    icon: BarChart3Icon,
-    title: "Analytics Dashboard",
-    desc: "Track revenue, top sellers, order status, and daily performance with beautiful charts.",
-  },
-  {
-    icon: ClipboardListIcon,
-    title: "Menu Management",
-    desc: "Easily manage categories, items, prices, and availability. Upload photos for every dish.",
-  },
-  {
-    icon: SmartphoneIcon,
-    title: "Mobile First",
-    desc: "Optimized for mobile devices. Your customers order from their phones, your staff manages from anywhere.",
-  },
-]
 
 const steps = [
   {
@@ -275,26 +240,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
-              <Item
-                key={feature.title}
-                variant="outline"
-                className="group flex-col items-start gap-3 p-5 transition-all hover:border-primary/50 hover:shadow-md"
-              >
-                <ItemMedia
-                  variant="icon"
-                  className="size-11 rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
-                >
-                  <feature.icon className="size-5" />
-                </ItemMedia>
-                <ItemContent className="gap-1.5">
-                  <ItemTitle className="text-base font-semibold">{feature.title}</ItemTitle>
-                  <ItemDescription className="text-sm leading-relaxed">{feature.desc}</ItemDescription>
-                </ItemContent>
-              </Item>
-            ))}
-          </div>
+          <FeatureGrid />
         </div>
       </section>
 
