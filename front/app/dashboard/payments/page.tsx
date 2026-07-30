@@ -1,13 +1,19 @@
 "use client"
 
 import * as React from "react"
-import { CheckIcon, ClockIcon } from "lucide-react"
+import { BanknoteIcon, CheckIcon, ClockIcon, TrendingUpIcon } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Spinner } from "@/components/ui/spinner"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Spinner } from "@/components/ui/spinner"
 import { api, type Payment } from "@/lib/api"
+import { PaymentsDataTable } from "@/components/payments-data-table"
+import { toast } from "@/components/ui/toast"
+
+function formatCurrency(value: string | number) {
+  const num = typeof value === "string" ? parseFloat(value) : value
+  if (isNaN(num)) return "0"
+  return num.toLocaleString()
+}
 
 export default function PaymentsPage() {
   const [payments, setPayments] = React.useState<Payment[]>([])
@@ -22,8 +28,13 @@ export default function PaymentsPage() {
   }, [])
 
   const handleConfirmCash = async (id: number) => {
-    await api.confirmCash(id)
-    load()
+    try {
+      await api.confirmCash(id)
+      toast.add({ title: "Payment confirmed", description: "Cash payment has been confirmed.", type: "success" })
+      load()
+    } catch (err: any) {
+      toast.add({ title: "Failed to confirm", description: err?.message || "Something went wrong", type: "error" })
+    }
   }
 
   if (loading) {
@@ -35,64 +46,73 @@ export default function PaymentsPage() {
     )
   }
 
+  const totalAmount = payments.filter(p => p.status === "completed").reduce((sum, p) => sum + parseFloat(p.amount), 0)
+  const pendingCount = payments.filter(p => p.status === "pending").length
+  const completedCount = payments.filter(p => p.status === "completed").length
+  const todayPayments = payments.filter(p => {
+    const today = new Date().toDateString()
+    return new Date(p.created_at).toDateString() === today
+  })
+
   return (
-    <div className="flex w-full flex-col gap-4 px-4 lg:px-6">
+    <div className="flex w-full flex-col gap-4 px-4 lg:gap-6 lg:px-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Payments</h2>
-        <p className="text-muted-foreground">Track and confirm payments</p>
+        <p className="text-muted-foreground">Track and manage all customer payments</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment Management</CardTitle>
-          <CardDescription>
-            Cash payments require waiter confirmation. Digital payments are auto-confirmed.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {payments.length === 0 ? (
-            <p className="py-8 text-center text-muted-foreground">
-              No payments to display. Payments will appear here as customers pay.
-            </p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {payments.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <p className="font-medium">
-                        {parseFloat(p.amount).toLocaleString()} TZS
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {p.method} — {p.split_type}
-                        {p.payer_label && ` — by ${p.payer_label}`}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {p.status === "pending" && p.method === "cash" ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleConfirmCash(p.id)}
-                      >
-                        <CheckIcon className="size-4" />
-                        Confirm Cash
-                      </Button>
-                    ) : (
-                      <Badge variant={p.status === "completed" ? "default" : "secondary"}>
-                        {p.status === "pending" && <ClockIcon className="size-3" />}
-                        {p.status}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <Card>
+          <CardHeader>
+            <CardDescription className="flex items-center gap-2">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600">
+                <BanknoteIcon className="size-4" />
+              </span>
+              Total Revenue
+            </CardDescription>
+            <CardTitle className="text-xl font-bold tabular-nums">{formatCurrency(totalAmount)} TZS</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription className="flex items-center gap-2">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-blue-500/15 text-blue-600">
+                <TrendingUpIcon className="size-4" />
+              </span>
+              Today&apos;s Payments
+            </CardDescription>
+            <CardTitle className="text-xl font-bold tabular-nums">{todayPayments.length}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription className="flex items-center gap-2">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600">
+                <CheckIcon className="size-4" />
+              </span>
+              Completed
+            </CardDescription>
+            <CardTitle className="text-xl font-bold tabular-nums">{completedCount}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription className="flex items-center gap-2">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600">
+                <ClockIcon className="size-4" />
+              </span>
+              Pending
+            </CardDescription>
+            <CardTitle className="text-xl font-bold tabular-nums">{pendingCount}</CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
+
+      {/* Data Table */}
+      <Card className="p-0">
+        <CardContent className="p-0">
+          <PaymentsDataTable data={payments} onConfirmCash={handleConfirmCash} />
         </CardContent>
       </Card>
     </div>
