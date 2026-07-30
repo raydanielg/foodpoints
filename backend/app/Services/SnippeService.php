@@ -149,6 +149,85 @@ class SnippeService
         return hash_equals($expectedSignature, $signature);
     }
 
+    public function sendMobilePayout(array $data): array
+    {
+        $payload = [
+            'amount' => (int) $data['amount'],
+            'channel' => 'mobile',
+            'recipient_phone' => $data['recipient_phone'],
+            'recipient_name' => $data['recipient_name'],
+            'narration' => $data['narration'] ?? 'FoodPoint withdrawal',
+            'webhook_url' => $data['webhook_url'] ?? route('snippe.webhook'),
+            'metadata' => $data['metadata'] ?? [],
+        ];
+
+        $key = $this->idempotencyKey('wd', $data['metadata']['withdrawal_id'] ?? 0);
+
+        try {
+            $response = Http::withHeaders($this->headers())
+                ->withHeader('Idempotency-Key', $key)
+                ->post($this->baseUrl . '/v1/payouts/send', $payload);
+
+            return $this->parseResponse($response);
+        } catch (\Exception $e) {
+            Log::error('Snippe sendMobilePayout error: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Payout service unavailable'];
+        }
+    }
+
+    public function sendBankPayout(array $data): array
+    {
+        $payload = [
+            'amount' => (int) $data['amount'],
+            'channel' => 'bank',
+            'recipient_bank' => $data['recipient_bank'],
+            'recipient_account' => $data['recipient_account'],
+            'recipient_name' => $data['recipient_name'],
+            'narration' => $data['narration'] ?? 'FoodPoint withdrawal',
+            'webhook_url' => $data['webhook_url'] ?? route('snippe.webhook'),
+            'metadata' => $data['metadata'] ?? [],
+        ];
+
+        $key = $this->idempotencyKey('wd', $data['metadata']['withdrawal_id'] ?? 0);
+
+        try {
+            $response = Http::withHeaders($this->headers())
+                ->withHeader('Idempotency-Key', $key)
+                ->post($this->baseUrl . '/v1/payouts/send', $payload);
+
+            return $this->parseResponse($response);
+        } catch (\Exception $e) {
+            Log::error('Snippe sendBankPayout error: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Payout service unavailable'];
+        }
+    }
+
+    public function getPayoutFee(int $amount): array
+    {
+        try {
+            $response = Http::withHeaders($this->headers())
+                ->get($this->baseUrl . '/v1/payouts/fee', ['amount' => $amount]);
+
+            return $this->parseResponse($response);
+        } catch (\Exception $e) {
+            Log::error('Snippe getPayoutFee error: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Unable to get fee'];
+        }
+    }
+
+    public function getPayoutStatus(string $reference): array
+    {
+        try {
+            $response = Http::withHeaders($this->headers())
+                ->get($this->baseUrl . '/v1/payouts/' . $reference);
+
+            return $this->parseResponse($response);
+        } catch (\Exception $e) {
+            Log::error('Snippe getPayoutStatus error: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Unable to check payout status'];
+        }
+    }
+
     private function parseResponse($response): array
     {
         if ($response->successful()) {

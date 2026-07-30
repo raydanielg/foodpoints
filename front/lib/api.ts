@@ -49,6 +49,15 @@ export interface Restaurant {
   kyc_status: "pending" | "approved" | "rejected"
   kyc_submitted_at: string | null
   kyc_approved_at: string | null
+  payout_channel: "mobile" | "bank"
+  payout_phone: string | null
+  payout_bank: string | null
+  payout_bank_account: string | null
+  payout_recipient_name: string | null
+  available_balance: string
+  total_earned: string
+  total_withdrawn: string
+  total_commission: string
 }
 
 export interface KycPayload {
@@ -144,6 +153,51 @@ export interface Payment {
 export interface AuthResponse {
   user: User
   token: string
+}
+
+export interface Withdrawal {
+  id: number
+  restaurant_id: number
+  amount: string
+  commission_amount: string
+  net_amount: string
+  channel: "mobile" | "bank"
+  recipient_phone: string | null
+  recipient_bank: string | null
+  recipient_account: string | null
+  recipient_name: string
+  status: "pending" | "completed" | "failed"
+  snippe_reference: string | null
+  failure_reason: string | null
+  processed_at: string | null
+  created_at: string
+}
+
+export interface RevenueData {
+  available_balance: string
+  total_earned: string
+  total_withdrawn: string
+  total_commission: string
+  today_revenue: string
+  week_revenue: string
+  month_revenue: string
+  total_revenue: string
+  today_commission: string
+  month_commission: string
+  total_commission_calculated: string
+  today_payments: number
+  pending_withdrawals: number
+  completed_withdrawals: number
+  daily_revenue: { date: string; total: string; count: number }[]
+  method_stats: { method: string; count: number; total: string }[]
+}
+
+export interface PayoutSettings {
+  payout_channel: "mobile" | "bank"
+  payout_phone: string | null
+  payout_bank: string | null
+  payout_bank_account: string | null
+  payout_recipient_name: string | null
 }
 
 export interface ApiError {
@@ -460,4 +514,26 @@ export const api = {
     }),
   deleteStaff: (id: number) =>
     apiRequest<{ message: string }>(`/staff/${id}`, { method: "DELETE" }),
+
+  // ===== Revenue & Earnings =====
+  getRevenue: () =>
+    apiRequest<{ revenue: RevenueData }>("/restaurant/revenue"),
+
+  // ===== Withdrawals =====
+  getWithdrawals: () =>
+    apiRequest<{ withdrawals: Withdrawal[] }>("/restaurant/withdrawals"),
+  requestWithdrawal: (body: { amount: number }) =>
+    apiRequest<{ withdrawal: Withdrawal; message: string }>("/restaurant/withdrawals/request", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  // ===== Payout Settings =====
+  getPayoutSettings: () =>
+    apiRequest<{ payout: PayoutSettings }>("/restaurant/payout-settings"),
+  updatePayoutSettings: (body: Partial<PayoutSettings>) =>
+    apiRequest<{ restaurant: Restaurant; message: string }>("/restaurant/payout-settings", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
 }

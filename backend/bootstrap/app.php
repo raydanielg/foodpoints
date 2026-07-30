@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use App\Http\Middleware\SuperAdminMiddleware;
+use App\Http\Middleware\OwnerMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'super_admin' => SuperAdminMiddleware::class,
+            'owner' => OwnerMiddleware::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'webhooks/snippe',

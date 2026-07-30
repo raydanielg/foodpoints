@@ -31,6 +31,15 @@ class Restaurant extends Model
         'kyc_status',
         'kyc_submitted_at',
         'kyc_approved_at',
+        'payout_channel',
+        'payout_phone',
+        'payout_bank',
+        'payout_bank_account',
+        'payout_recipient_name',
+        'available_balance',
+        'total_earned',
+        'total_withdrawn',
+        'total_commission',
     ];
 
     protected function casts(): array
@@ -40,6 +49,10 @@ class Restaurant extends Model
             'kyc_submitted_at' => 'datetime',
             'kyc_approved_at' => 'datetime',
             'subscription_expires_at' => 'datetime',
+            'available_balance' => 'decimal:2',
+            'total_earned' => 'decimal:2',
+            'total_withdrawn' => 'decimal:2',
+            'total_commission' => 'decimal:2',
         ];
     }
 
@@ -71,5 +84,10 @@ class Restaurant extends Model
     public function sessions(): HasMany
     {
         return $this->hasMany(TableSession::class);
+    }
+
+    public function withdrawals(): HasMany
+    {
+        return $this->hasMany(Withdrawal::class);
     }
 }

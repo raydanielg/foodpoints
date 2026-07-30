@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\OrderItem;
+use App\Models\Restaurant;
 use App\Models\TableSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 
 class SnippeWebhookController extends Controller
 {
+    private const COMMISSION_RATE = 0.015; // 1.5%
+
     public function handleWebhook(Request $request)
     {
         $rawBody = $request->getContent();
@@ -80,6 +83,17 @@ class SnippeWebhookController extends Controller
                         'paid' => true,
                         'paid_by_label' => $payment->payer_label,
                     ]);
+            }
+
+            // Commission: 1.5% of payment amount goes to platform
+            $commission = round($payment->amount * self::COMMISSION_RATE, 2);
+            $netEarning = $payment->amount - $commission;
+
+            $restaurant = Restaurant::find($payment->restaurant_id);
+            if ($restaurant) {
+                $restaurant->increment('available_balance', $netEarning);
+                $restaurant->increment('total_earned', $netEarning);
+                $restaurant->increment('total_commission', $commission);
             }
 
             if ($session->fresh()->paid_amount >= $session->total_amount - 0.01) {

@@ -281,6 +281,16 @@ class PublicController extends Controller
                                 ]);
                         }
 
+                        // Commission: 1.5% to platform
+                        $commission = round($payment->amount * 0.015, 2);
+                        $netEarning = $payment->amount - $commission;
+                        $restaurant = \App\Models\Restaurant::find($payment->restaurant_id);
+                        if ($restaurant) {
+                            $restaurant->increment('available_balance', $netEarning);
+                            $restaurant->increment('total_earned', $netEarning);
+                            $restaurant->increment('total_commission', $commission);
+                        }
+
                         if ($session->fresh()->paid_amount >= $session->total_amount - 0.01) {
                             $session->update([
                                 'status' => 'closed',
