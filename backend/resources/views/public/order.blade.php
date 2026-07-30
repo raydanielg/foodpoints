@@ -256,6 +256,25 @@
                 <span id="toastMsg">Added</span>
             </div>
         </div>
+
+        {{-- ===== NOTIFICATION PERMISSION MODAL ===== --}}
+        <div id="notifOverlay" class="fixed inset-0 bg-black/60 z-[65] hidden flex items-center justify-center p-6">
+            <div class="scale-in bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                </div>
+                <h3 class="text-lg font-extrabold text-gray-900">Enable Notifications</h3>
+                <p class="text-sm text-gray-500 mt-2 mb-5">Get notified when your order status changes — from kitchen to your table. Never miss an update!</p>
+                <div class="space-y-2">
+                    <button onclick="requestNotifications()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold text-sm rounded-xl shadow-md active:scale-95 transition-transform">
+                        Allow Notifications
+                    </button>
+                    <button onclick="dismissNotifications()" class="w-full py-2.5 text-gray-500 font-semibold text-xs hover:text-gray-700 transition-colors">
+                        Maybe later
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -411,9 +430,52 @@
         setInterval(async () => {
             try {
                 const res = await fetch('/public/session/' + SESSION_ID, { headers: { 'Accept': 'application/json' } });
-                if (res.ok) { const data = await res.json(); sessionData = data.session; updateHeader(); if (document.getElementById('page-orders').classList.contains('active')) renderOrders(); if (document.getElementById('page-bill').classList.contains('active')) renderBill(); }
+                if (res.ok) {
+                    const data = await res.json();
+                    const prevOrders = (sessionData.orders || []).map(o => o.id + ':' + o.status).join(',');
+                    sessionData = data.session;
+                    updateHeader();
+                    if (document.getElementById('page-orders').classList.contains('active')) renderOrders();
+                    if (document.getElementById('page-bill').classList.contains('active')) renderBill();
+                    checkOrderStatusChanges(prevOrders);
+                }
             } catch (e) {}
         }, 15000);
+
+        function checkOrderStatusChanges(prevStatuses) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            const orders = sessionData.orders || [];
+            const statusLabels = { received: 'Order Received', preparing: 'Your order is being prepared', ready: 'Your order is ready!', served: 'Your order has been served' };
+            orders.forEach(order => {
+                const key = order.id + ':' + order.status;
+                if (!prevStatuses.includes(key) && statusLabels[order.status]) {
+                    const prevKey = order.id + ':';
+                    const wasInPrev = prevStatuses.includes(order.id + ':received') || prevStatuses.includes(order.id + ':preparing') || prevStatuses.includes(order.id + ':ready');
+                    if (wasInPrev) {
+                        new Notification('{{ addslashes($restaurant->name) }}', { body: statusLabels[order.status] + ' — Order #' + order.id, icon: '{{ $restaurant->logo_url ?? "" }}' });
+                    }
+                }
+            });
+        }
+
+        function requestNotifications() {
+            if (!('Notification' in window)) { dismissNotifications(); showToast('Notifications not supported'); return; }
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    showToast('Notifications enabled!');
+                    new Notification('{{ addslashes($restaurant->name) }}', { body: 'You will now receive updates about your orders.', icon: '{{ $restaurant->logo_url ?? "" }}' });
+                }
+                dismissNotifications();
+            });
+        }
+        function dismissNotifications() { document.getElementById('notifOverlay').classList.add('hidden'); }
+
+        if (!localStorage.getItem('notifAsked')) {
+            setTimeout(() => {
+                document.getElementById('notifOverlay').classList.remove('hidden');
+                localStorage.setItem('notifAsked', '1');
+            }, 2000);
+        }
 
         updateCartUI(); updateHeader();
     </script>

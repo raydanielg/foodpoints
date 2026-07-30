@@ -53,36 +53,53 @@ $fmt = fn($n) => $n >= 1000000000 ? number_format($n/1000000000,2).'B' : ($n >= 
 {{-- Charts Section --}}
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     {{-- Revenue Chart --}}
-    <div class="bg-white rounded-xl border p-5">
+    <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-gray-900">Revenue (Last 7 Days)</h3>
-            <div class="flex items-center gap-1.5">
+            <div>
+                <h3 class="text-sm font-bold text-gray-900">Revenue</h3>
+                <p class="text-[10px] text-gray-400 mt-0.5">Last 7 days · Completed payments</p>
+            </div>
+            <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50">
                 <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                <span class="text-[10px] text-gray-400 font-medium">Completed Payments</span>
+                <span class="text-[10px] text-emerald-700 font-semibold">Revenue</span>
             </div>
         </div>
-        <canvas id="revenueChart" height="200"></canvas>
+        <div style="height: 220px; position: relative;">
+            <canvas id="revenueChart"></canvas>
+        </div>
     </div>
 
     {{-- Registrations Chart --}}
-    <div class="bg-white rounded-xl border p-5">
+    <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-gray-900">New Restaurants (Last 7 Days)</h3>
-            <div class="flex items-center gap-1.5">
+            <div>
+                <h3 class="text-sm font-bold text-gray-900">New Restaurants</h3>
+                <p class="text-[10px] text-gray-400 mt-0.5">Last 7 days · Registrations</p>
+            </div>
+            <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-sky-50">
                 <div class="w-2 h-2 rounded-full bg-sky-500"></div>
-                <span class="text-[10px] text-gray-400 font-medium">Registrations</span>
+                <span class="text-[10px] text-sky-700 font-semibold">Signups</span>
             </div>
         </div>
-        <canvas id="registrationsChart" height="200"></canvas>
+        <div style="height: 220px; position: relative;">
+            <canvas id="registrationsChart"></canvas>
+        </div>
     </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     {{-- Plan Distribution --}}
-    <div class="bg-white rounded-xl border p-5">
-        <h3 class="text-sm font-semibold text-gray-900 mb-4">Plan Distribution</h3>
+    <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-sm font-bold text-gray-900">Plan Distribution</h3>
+                <p class="text-[10px] text-gray-400 mt-0.5">Restaurants per plan</p>
+            </div>
+        </div>
         @if (count($charts['plans']['labels']) > 0)
-        <canvas id="plansChart" height="200"></canvas>
+        <div style="height: 220px; position: relative;">
+            <canvas id="plansChart"></canvas>
+        </div>
         @else
         <div class="text-center py-12">
             <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
@@ -94,9 +111,16 @@ $fmt = fn($n) => $n >= 1000000000 ? number_format($n/1000000000,2).'B' : ($n >= 
     </div>
 
     {{-- Subscription Status --}}
-    <div class="bg-white rounded-xl border p-5">
-        <h3 class="text-sm font-semibold text-gray-900 mb-4">Subscription Status</h3>
-        <canvas id="subscriptionsChart" height="200"></canvas>
+    <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-sm font-bold text-gray-900">Subscription Status</h3>
+                <p class="text-[10px] text-gray-400 mt-0.5">All restaurants</p>
+            </div>
+        </div>
+        <div style="height: 220px; position: relative;">
+            <canvas id="subscriptionsChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -180,6 +204,9 @@ $fmt = fn($n) => $n >= 1000000000 ? number_format($n/1000000000,2).'B' : ($n >= 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 const chartData = @json($charts);
+const chartFont = { family: 'Nunito, sans-serif', size: 10 };
+const chartGridColor = '#f3f4f6';
+const chartTickColor = '#9ca3af';
 
 // Revenue Line Chart
 new Chart(document.getElementById('revenueChart'), {
@@ -190,23 +217,45 @@ new Chart(document.getElementById('revenueChart'), {
             label: 'Revenue',
             data: chartData.revenue.data,
             borderColor: '#024938',
-            backgroundColor: 'rgba(2, 73, 56, 0.08)',
+            backgroundColor: function(ctx) {
+                const chart = ctx.chart;
+                const {ctx: c, chartArea} = chart;
+                if (!chartArea) return 'rgba(2,73,56,0.08)';
+                const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                gradient.addColorStop(0, 'rgba(2,73,56,0.25)');
+                gradient.addColorStop(1, 'rgba(2,73,56,0.01)');
+                return gradient;
+            },
             fill: true,
             tension: 0.4,
             pointBackgroundColor: '#024938',
             pointBorderColor: '#fff',
             pointBorderWidth: 2,
             pointRadius: 4,
-            pointHoverRadius: 6,
+            pointHoverRadius: 7,
+            pointHoverBorderWidth: 3,
+            borderWidth: 2.5,
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#024938',
+                titleFont: { family: 'Nunito, sans-serif', size: 12, weight: 'bold' },
+                bodyFont: { family: 'Nunito, sans-serif', size: 11 },
+                padding: 10,
+                cornerRadius: 8,
+                displayColors: false,
+                callbacks: { label: ctx => 'Revenue: ' + new Intl.NumberFormat().format(ctx.raw) }
+            }
+        },
         scales: {
-            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 }, color: '#9ca3af' } },
-            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9ca3af' } }
+            y: { beginAtZero: true, grid: { color: chartGridColor, drawBorder: false }, ticks: { font: chartFont, color: chartTickColor, callback: v => new Intl.NumberFormat().format(v) } },
+            x: { grid: { display: false }, ticks: { font: chartFont, color: chartTickColor } }
         }
     }
 });
@@ -219,20 +268,40 @@ new Chart(document.getElementById('registrationsChart'), {
         datasets: [{
             label: 'New Restaurants',
             data: chartData.registrations.data,
-            backgroundColor: 'rgba(56, 189, 248, 0.7)',
+            backgroundColor: function(ctx) {
+                const chart = ctx.chart;
+                const {ctx: c, chartArea} = chart;
+                if (!chartArea) return 'rgba(56,189,248,0.7)';
+                const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                gradient.addColorStop(0, 'rgba(14,165,233,0.9)');
+                gradient.addColorStop(1, 'rgba(56,189,248,0.4)');
+                return gradient;
+            },
             borderColor: '#0ea5e9',
-            borderWidth: 1,
-            borderRadius: 6,
-            barThickness: 28,
+            borderWidth: 0,
+            borderRadius: 8,
+            barThickness: 30,
+            hoverBackgroundColor: '#0284c7',
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#0ea5e9',
+                titleFont: { family: 'Nunito, sans-serif', size: 12, weight: 'bold' },
+                bodyFont: { family: 'Nunito, sans-serif', size: 11 },
+                padding: 10,
+                cornerRadius: 8,
+                displayColors: false,
+                callbacks: { label: ctx => ctx.raw + ' new restaurant' + (ctx.raw !== 1 ? 's' : '') }
+            }
+        },
         scales: {
-            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 }, color: '#9ca3af', stepSize: 1 } },
-            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9ca3af' } }
+            y: { beginAtZero: true, grid: { color: chartGridColor, drawBorder: false }, ticks: { font: chartFont, color: chartTickColor, stepSize: 1, precision: 0 } },
+            x: { grid: { display: false }, ticks: { font: chartFont, color: chartTickColor } }
         }
     }
 });
@@ -246,15 +315,25 @@ new Chart(document.getElementById('plansChart'), {
         datasets: [{
             data: chartData.plans.data,
             backgroundColor: ['#024938', '#f9ac00', '#0ea5e9', '#8b5cf6', '#ef4444', '#ec4899'],
-            borderWidth: 0,
+            borderWidth: 3,
+            borderColor: '#ffffff',
+            hoverOffset: 8,
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '65%',
+        cutout: '62%',
         plugins: {
-            legend: { position: 'bottom', labels: { font: { size: 11 }, color: '#6b7280', padding: 12, usePointStyle: true, pointStyle: 'circle' } }
+            legend: { position: 'bottom', labels: { font: { family: 'Nunito, sans-serif', size: 11 }, color: '#6b7280', padding: 14, usePointStyle: true, pointStyle: 'circle' } },
+            tooltip: {
+                backgroundColor: '#1f2937',
+                titleFont: { family: 'Nunito, sans-serif', size: 12, weight: 'bold' },
+                bodyFont: { family: 'Nunito, sans-serif', size: 11 },
+                padding: 10,
+                cornerRadius: 8,
+                callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + ' restaurant' + (ctx.raw !== 1 ? 's' : '') }
+            }
         }
     }
 });
@@ -268,14 +347,24 @@ new Chart(document.getElementById('subscriptionsChart'), {
         datasets: [{
             data: chartData.subscriptions.data,
             backgroundColor: ['#024938', '#ef4444', '#f59e0b'],
-            borderWidth: 0,
+            borderWidth: 3,
+            borderColor: '#ffffff',
+            hoverOffset: 8,
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: { position: 'bottom', labels: { font: { size: 11 }, color: '#6b7280', padding: 12, usePointStyle: true, pointStyle: 'circle' } }
+            legend: { position: 'bottom', labels: { font: { family: 'Nunito, sans-serif', size: 11 }, color: '#6b7280', padding: 14, usePointStyle: true, pointStyle: 'circle' } },
+            tooltip: {
+                backgroundColor: '#1f2937',
+                titleFont: { family: 'Nunito, sans-serif', size: 12, weight: 'bold' },
+                bodyFont: { family: 'Nunito, sans-serif', size: 11 },
+                padding: 10,
+                cornerRadius: 8,
+                callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + ' restaurant' + (ctx.raw !== 1 ? 's' : '') }
+            }
         }
     }
 });
