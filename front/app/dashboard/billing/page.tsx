@@ -104,7 +104,7 @@ export default function BillingPage() {
       </div>
 
       {/* Current plan */}
-      <Card className="max-w-2xl">
+      <Card className="rounded-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <SparklesIcon className="size-5 text-primary" />
@@ -160,7 +160,7 @@ export default function BillingPage() {
       </Card>
 
       {/* Payment history */}
-      <Card className="max-w-2xl">
+      <Card className="rounded-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ReceiptIcon className="size-5" />
