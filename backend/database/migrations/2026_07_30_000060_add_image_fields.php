@@ -8,17 +8,23 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('avatar_url')->nullable()->after('phone');
-        });
+        if (!Schema::hasColumn('users', 'avatar_url')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('avatar_url')->nullable()->after('phone');
+            });
+        }
 
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->string('cover_url')->nullable()->after('logo_url');
-        });
+        if (!Schema::hasColumn('restaurants', 'cover_url')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->string('cover_url')->nullable()->after('logo_url');
+            });
+        }
 
-        Schema::table('menu_items', function (Blueprint $table) {
-            $table->string('image_url')->nullable()->after('description');
-        });
+        if (!Schema::hasColumn('menu_items', 'image_url')) {
+            Schema::table('menu_items', function (Blueprint $table) {
+                $table->string('image_url')->nullable()->after('description');
+            });
+        }
     }
 
     public function down(): void
