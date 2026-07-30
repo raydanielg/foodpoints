@@ -46,7 +46,6 @@ export default function StaffPage() {
   const [saving, setSaving] = React.useState(false)
   const [form, setForm] = React.useState({
     name: "",
-    email: "",
     phone: "",
     password: "",
     role: "waiter" as "manager" | "waiter" | "kitchen",
@@ -65,8 +64,7 @@ export default function StaffPage() {
     try {
       const body: Record<string, unknown> = {
         name: form.name,
-        email: form.email,
-        phone: form.phone || undefined,
+        phone: form.phone,
         role: form.role,
       }
       if (form.password) body.password = form.password
@@ -75,15 +73,14 @@ export default function StaffPage() {
       } else {
         await api.createStaff({
           name: form.name,
-          email: form.email,
+          phone: form.phone || "",
           password: form.password,
-          phone: form.phone || undefined,
           role: form.role,
         })
       }
       setOpen(false)
       setEditingId(null)
-      setForm({ name: "", email: "", phone: "", password: "", role: "waiter" })
+      setForm({ name: "", phone: "", password: "", role: "waiter" })
       load()
     } catch {
     } finally {
@@ -95,7 +92,6 @@ export default function StaffPage() {
     setEditingId(s.id)
     setForm({
       name: s.name,
-      email: s.email,
       phone: s.phone || "",
       password: "",
       role: s.role as "manager" | "waiter" | "kitchen",
@@ -132,7 +128,7 @@ export default function StaffPage() {
                 size="sm"
                 onClick={() => {
                   setEditingId(null)
-                  setForm({ name: "", email: "", phone: "", password: "", role: "waiter" })
+                  setForm({ name: "", phone: "", password: "", role: "waiter" })
                 }}
               >
                 <PlusIcon className="size-4" />
@@ -157,20 +153,13 @@ export default function StaffPage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label>Email</Label>
+                <Label>Phone Number</Label>
                 <Input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder="john@restaurant.com"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label>Phone</Label>
-                <Input
+                  type="tel"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  placeholder="+255..."
+                  placeholder="2557XXXXXXXX"
+                  pattern="^255\d{9}$"
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -203,7 +192,7 @@ export default function StaffPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleSave} disabled={saving || !form.name || !form.email}>
+              <Button onClick={handleSave} disabled={saving || !form.name || !form.phone}>
                 {saving ? "Saving..." : "Save"}
               </Button>
             </DialogFooter>
@@ -233,7 +222,7 @@ export default function StaffPage() {
                   </Avatar>
                   <div>
                     <p className="font-medium">{s.name}</p>
-                    <p className="text-xs text-muted-foreground">{s.email}</p>
+                    <p className="text-xs text-muted-foreground">{s.phone}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

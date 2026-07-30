@@ -21,7 +21,7 @@ export function imageUrl(path: string | null | undefined): string | null {
 export interface User {
   id: number
   name: string
-  email: string
+  email?: string | null
   phone: string | null
   avatar_url: string | null
   role: "super_admin" | "owner" | "manager" | "waiter" | "kitchen"
@@ -225,18 +225,17 @@ export const api = {
   // ===== Auth =====
   register: (body: {
     name: string
-    email: string
+    phone: string
     password: string
     password_confirmation: string
     restaurant_name: string
-    phone?: string
   }) =>
     apiRequest<AuthResponse>("/register", {
       method: "POST",
       body: JSON.stringify(body),
     }),
 
-  login: (body: { email: string; password: string }) =>
+  login: (body: { phone: string; password: string }) =>
     apiRequest<AuthResponse>("/login", {
       method: "POST",
       body: JSON.stringify(body),
@@ -246,7 +245,7 @@ export const api = {
     apiRequest<{ message: string }>("/logout", { method: "POST" }),
 
   me: () => apiRequest<{ user: User }>("/me"),
-  updateProfile: (body: { name?: string; email?: string; phone?: string | null; avatar_url?: string | null }) =>
+  updateProfile: (body: { name?: string; phone?: string; avatar_url?: string | null }) =>
     apiRequest<{ user: User }>("/profile", {
       method: "PUT",
       body: JSON.stringify(body),
@@ -446,9 +445,8 @@ export const api = {
   getStaff: () => apiRequest<{ staff: User[] }>("/staff"),
   createStaff: (body: {
     name: string
-    email: string
+    phone: string
     password: string
-    phone?: string
     role: "manager" | "waiter" | "kitchen"
   }) =>
     apiRequest<{ staff: User; token: string }>("/staff", {

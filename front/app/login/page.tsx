@@ -5,7 +5,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   LockIcon,
-  MailIcon,
+  PhoneIcon,
   UserIcon,
   UtensilsCrossedIcon,
   QrCodeIcon,
@@ -39,7 +39,7 @@ export default function AuthPage() {
   const [form, setForm] = React.useState({
     name: "",
     restaurant_name: "",
-    email: "",
+    phone: "",
     password: "",
     password_confirmation: "",
   })
@@ -60,7 +60,7 @@ export default function AuthPage() {
       if (mode === "register") {
         const res = await api.register({
           name: form.name,
-          email: form.email,
+          phone: form.phone,
           password: form.password,
           password_confirmation: form.password_confirmation,
           restaurant_name: form.restaurant_name,
@@ -69,7 +69,7 @@ export default function AuthPage() {
         window.location.href = "/dashboard"
       } else {
         const res = await api.login({
-          email: form.email,
+          phone: form.phone,
           password: form.password,
         })
         setToken(res.token)
@@ -285,19 +285,21 @@ export default function AuthPage() {
                 )}
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="phone">Phone Number</Label>
                   <div className="relative">
-                    <MailIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <PhoneIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={form.email}
-                      onChange={(e) => updateField("email", e.target.value)}
+                      id="phone"
+                      type="tel"
+                      placeholder="2557XXXXXXXX"
+                      value={form.phone}
+                      onChange={(e) => updateField("phone", e.target.value)}
                       className="pl-10"
                       required
+                      pattern="^255\d{9}$"
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">Must start with 255 followed by 9 digits</p>
                 </div>
 
                 <div className="flex flex-col gap-2">

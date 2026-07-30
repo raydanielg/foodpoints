@@ -3,7 +3,6 @@
 import * as React from "react"
 import {
   UserIcon,
-  MailIcon,
   PhoneIcon,
   LockIcon,
   SaveIcon,
@@ -35,7 +34,6 @@ export default function AccountPage() {
   // Profile form
   const [profileForm, setProfileForm] = React.useState({
     name: "",
-    email: "",
     phone: "",
   })
   const [savingProfile, setSavingProfile] = React.useState(false)
@@ -59,7 +57,6 @@ export default function AccountPage() {
         setUser(res.user)
         setProfileForm({
           name: res.user.name,
-          email: res.user.email,
           phone: res.user.phone || "",
         })
       })
@@ -74,8 +71,7 @@ export default function AccountPage() {
     try {
       const res = await api.updateProfile({
         name: profileForm.name,
-        email: profileForm.email,
-        phone: profileForm.phone || null,
+        phone: profileForm.phone || undefined,
         avatar_url: user.avatar_url,
       })
       setUser(res.user)
@@ -154,7 +150,7 @@ export default function AccountPage() {
           </Avatar>
           <div className="flex flex-1 flex-col">
             <span className="font-semibold text-lg">{user.name}</span>
-            <span className="text-sm text-muted-foreground">{user.email}</span>
+            <span className="text-sm text-muted-foreground">{user.phone}</span>
             <div className="mt-1 flex items-center gap-2">
               <Badge variant="outline" className="capitalize">
                 {user.role}
@@ -218,32 +214,19 @@ export default function AccountPage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="email">
-                  <MailIcon className="mr-1 inline size-3.5" />
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={profileForm.email}
-                  onChange={(e) =>
-                    setProfileForm((f) => ({ ...f, email: e.target.value }))
-                  }
-                  placeholder="john@restaurant.com"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
                 <Label htmlFor="phone">
                   <PhoneIcon className="mr-1 inline size-3.5" />
-                  Phone
+                  Phone Number
                 </Label>
                 <Input
                   id="phone"
+                  type="tel"
                   value={profileForm.phone}
                   onChange={(e) =>
                     setProfileForm((f) => ({ ...f, phone: e.target.value }))
                   }
-                  placeholder="+255..."
+                  placeholder="2557XXXXXXXX"
+                  pattern="^255\d{9}$"
                 />
               </div>
 
@@ -254,7 +237,7 @@ export default function AccountPage() {
               <div className="flex items-center gap-3 pt-2">
                 <Button
                   onClick={handleSaveProfile}
-                  disabled={savingProfile || !profileForm.name || !profileForm.email}
+                  disabled={savingProfile || !profileForm.name || !profileForm.phone}
                 >
                   {savingProfile ? (
                     <Spinner className="size-4" />

@@ -68,15 +68,21 @@ php artisan event:cache
 
 ### Step 8: Create Super Admin (if not seeded)
 ```bash
+php artisan db:seed --force
+```
+Or manually:
+```bash
 php artisan tinker
 >>> App\Models\User::create([
     'name' => 'Super Admin',
+    'phone' => '255700000000',
     'email' => 'admin@foodpoint.co.tz',
     'password' => 'YourSecurePassword',
     'role' => 'super_admin',
     'restaurant_id' => null,
 ]);
 ```
+Admin login uses **phone number** (format: `255XXXXXXXXX`) and password.
 
 ---
 
