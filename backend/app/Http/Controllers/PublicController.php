@@ -39,12 +39,12 @@ class PublicController extends Controller
     {
         $table = RestaurantTable::where('qr_token', $qrToken)->first();
         if (!$table) {
-            abort(404, 'Invalid QR code');
+            return view('public.invalid-qr');
         }
 
         $restaurant = Restaurant::find($table->restaurant_id);
         if (!$restaurant || $restaurant->subscription_status !== 'active') {
-            abort(404, 'Restaurant not available');
+            return view('public.invalid-qr', ['reason' => 'inactive']);
         }
 
         $session = TableSession::where('table_id', $table->id)
@@ -195,5 +195,33 @@ class PublicController extends Controller
         $session = TableSession::with(['orders.items.menuItem', 'payments', 'table'])
             ->findOrFail($sessionId);
         return response()->json(['session' => $session]);
+    }
+
+    public function findTable(Request $request, $slug)
+    {
+        $restaurant = Restaurant::where('restaurant_link', $slug)
+            ->where('subscription_status', 'active')
+            ->first();
+
+        if (!$restaurant) {
+            return response()->json(['message' => 'Restaurant not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'table_number' => 'required|integer|min:1',
+        ]);
+
+        $table = RestaurantTable::where('restaurant_id', $restaurant->id)
+            ->where('table_number', $validated['table_number'])
+            ->first();
+
+        if (!$table) {
+            return response()->json(['message' => 'Table number not found. Please check your table and try again.'], 404);
+        }
+
+        return response()->json([
+            'redirect' => route('public.scan', $table->qr_token),
+            'table_number' => $table->table_number,
+        ]);
     }
 }

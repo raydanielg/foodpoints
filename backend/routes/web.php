@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public restaurant pages (customer-facing)
 Route::get('/r/{slug}', [PublicController::class, 'restaurantPage'])->name('public.restaurant');
+Route::post('/r/{slug}/find-table', [PublicController::class, 'findTable'])->name('public.findTable');
 Route::get('/scan/{qrToken}', [PublicController::class, 'scanQr'])->name('public.scan');
 Route::post('/public/order', [PublicController::class, 'placeOrder'])->name('public.order');
 Route::post('/public/payment', [PublicController::class, 'processPayment'])->name('public.payment');
