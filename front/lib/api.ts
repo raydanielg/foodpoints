@@ -58,6 +58,8 @@ export interface Restaurant {
   total_earned: string
   total_withdrawn: string
   total_commission: string
+  plan_id: number | null
+  subscription_expires_at: string | null
 }
 
 export interface KycPayload {
