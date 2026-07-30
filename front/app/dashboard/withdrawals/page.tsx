@@ -34,7 +34,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { api, type Withdrawal, type RevenueData, type PayoutSettings } from "@/lib/api"
-import { useToast } from "@/components/ui/toast"
+import { toast } from "@/components/ui/toast"
 
 function formatCurrency(value: string | number) {
   const num = typeof value === "string" ? parseFloat(value) : value
@@ -53,7 +53,6 @@ function formatDateTime(dateStr: string) {
 
 export default function WithdrawalsPage() {
   const router = useRouter()
-  const { toast } = useToast()
   const [withdrawals, setWithdrawals] = React.useState<Withdrawal[]>([])
   const [revenue, setRevenue] = React.useState<RevenueData | null>(null)
   const [payout, setPayout] = React.useState<PayoutSettings | null>(null)
