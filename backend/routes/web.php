@@ -58,4 +58,10 @@ Route::middleware(['auth', 'super_admin'])->group(function () {
         ->name('admin.subscriptions.suspend');
     Route::post('/subscriptions/{restaurant}/activate', [\App\Http\Controllers\Admin\SubscriptionController::class, 'activate'])
         ->name('admin.subscriptions.activate');
+
+    // Finance
+    Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('admin.finance.index');
+    Route::get('/finance/withdrawals', [\App\Http\Controllers\Admin\FinanceController::class, 'withdrawals'])->name('admin.finance.withdrawals');
+    Route::get('/finance/snippe', [\App\Http\Controllers\Admin\FinanceController::class, 'snippeSettings'])->name('admin.finance.snippe');
+    Route::post('/finance/snippe', [\App\Http\Controllers\Admin\FinanceController::class, 'updateSnippeSettings'])->name('admin.finance.snippe.update');
 });
