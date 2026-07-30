@@ -97,7 +97,7 @@ interface KpiCardProps {
 
 function KpiCard({ title, value, icon, trend, trendUp, accent, hidden, onToggleHidden, showEyeToggle }: KpiCardProps) {
   return (
-    <Card className="relative overflow-hidden rounded-xl">
+    <Card className="relative overflow-hidden rounded-lg">
       <div
         className="absolute right-0 top-0 h-20 w-20 rounded-full opacity-[0.07] blur-2xl"
         style={{ backgroundColor: accent }}
@@ -319,21 +319,15 @@ export default function DashboardPage() {
   return (
     <div className="flex w-full flex-col gap-4 px-4 lg:gap-6 lg:px-6">
       {/* Welcome Header */}
-      <div className="flex flex-col gap-1 rounded-xl border bg-gradient-to-br from-muted/50 to-transparent p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="flex flex-col gap-1">
         <div className="flex items-center gap-3">
           <span className="text-2xl sm:text-3xl">👋</span>
           <div>
-            <h2 className="text-lg font-bold tracking-tight sm:text-xl">
+            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
               {getGreeting()}, {hotelName}
             </h2>
             <p className="text-sm text-muted-foreground">{today}</p>
           </div>
-        </div>
-        <div className="hidden items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 sm:flex">
-          <SparklesIcon className="size-4 text-primary" />
-          <span className="text-xs font-medium text-primary">
-            {stats.active_sessions > 0 ? `${stats.active_sessions} tables active now` : "No active tables"}
-          </span>
         </div>
       </div>
 
