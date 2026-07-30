@@ -17,8 +17,10 @@ class Payment extends Model
         'method',
         'split_type',
         'payer_label',
+        'payer_phone',
         'status',
         'transaction_ref',
+        'snippe_reference',
         'item_ids',
     ];
 

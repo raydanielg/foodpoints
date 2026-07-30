@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'super_admin' => SuperAdminMiddleware::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/snippe',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

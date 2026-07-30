@@ -2,7 +2,11 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\PublicController;
+use App\Http\Controllers\SnippeWebhookController;
 use Illuminate\Support\Facades\Route;
+
+// Snippe webhook (no CSRF)
+Route::post('/webhooks/snippe', [SnippeWebhookController::class, 'handleWebhook'])->name('snippe.webhook');
 
 // Public restaurant pages (customer-facing)
 Route::get('/r/{slug}', [PublicController::class, 'restaurantPage'])->name('public.restaurant');
@@ -10,6 +14,8 @@ Route::post('/r/{slug}/find-table', [PublicController::class, 'findTable'])->nam
 Route::get('/scan/{qrToken}', [PublicController::class, 'scanQr'])->name('public.scan');
 Route::post('/public/order', [PublicController::class, 'placeOrder'])->name('public.order');
 Route::post('/public/payment', [PublicController::class, 'processPayment'])->name('public.payment');
+Route::get('/public/payment/{paymentId}/status', [PublicController::class, 'checkPaymentStatus'])->name('public.payment.status');
+Route::post('/public/payment/{paymentId}/retry-ussd', [PublicController::class, 'retryUssdPush'])->name('public.payment.retry');
 Route::get('/public/session/{sessionId}', [PublicController::class, 'sessionStatus'])->name('public.session');
 
 // Redirect root to admin login

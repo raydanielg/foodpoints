@@ -275,6 +275,28 @@
                 </div>
             </div>
         </div>
+
+        {{-- ===== USSD WAITING MODAL ===== --}}
+        <div id="ussdOverlay" class="fixed inset-0 bg-black/60 z-[65] hidden flex items-center justify-center p-6">
+            <div class="scale-in bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <svg class="w-8 h-8 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                </div>
+                <h3 class="text-lg font-extrabold text-gray-900">Waiting for Authorization</h3>
+                <p id="ussdMsg" class="text-sm text-gray-500 mt-2 mb-5">Check your phone for the USSD prompt and enter your PIN to authorize the payment.</p>
+                <input type="hidden" id="ussdPaymentId" value="">
+                <div class="space-y-2">
+                    <button onclick="retryUssd()" class="w-full py-2.5 bg-gray-100 text-gray-700 font-bold text-xs rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        Resend USSD Push
+                    </button>
+                    <button onclick="cancelUssdWait()" class="w-full py-2 text-gray-400 font-semibold text-xs hover:text-gray-600 transition-colors">
+                        Cancel
+                    </button>
+                </div>
+                <p class="text-[10px] text-gray-300 mt-3">Payment expires in 4 hours if not completed</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -370,7 +392,7 @@
                 html += `</div>`;
             }
             if (remaining > 0.01 && sessionData.status === 'open') {
-                html += `<h3 class="text-sm font-extrabold text-gray-900 mt-5 mb-2">Pay Now</h3><div class="bg-white rounded-2xl border border-gray-100 p-4 space-y-3"><div><label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Method</label><div class="grid grid-cols-3 gap-2"><button onclick="selectMethod('mobile_money', this)" class="pay-method-btn flex flex-col items-center gap-1 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 active:scale-95 transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>Mobile</button><button onclick="selectMethod('card', this)" class="pay-method-btn flex flex-col items-center gap-1 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 active:scale-95 transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>Card</button><button onclick="selectMethod('cash', this)" class="pay-method-btn flex flex-col items-center gap-1 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 active:scale-95 transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>Cash</button></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1.5">Amount</label><div class="flex gap-2"><input type="number" id="payAmount" value="${remaining.toFixed(2)}" step="0.01" min="0.01" max="${remaining.toFixed(2)}" class="flex-1 rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"><button onclick="document.getElementById('payAmount').value=${remaining.toFixed(2)}" class="px-3 py-2.5 text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-xl active:scale-95 transition-all">Full</button></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1.5">Your Name (optional)</label><input type="text" id="payerLabel" placeholder="e.g. John" class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"></div><button onclick="processPayment()" class="w-full py-3 bg-gradient-to-r from-gold-300 to-gold-400 text-gray-900 font-extrabold text-sm rounded-xl shadow-md active:scale-95 transition-all">Pay ${formatMoney(remaining)} ${CURRENCY}</button></div>`;
+                html += `<h3 class="text-sm font-extrabold text-gray-900 mt-5 mb-2">Pay Now</h3><div class="bg-white rounded-2xl border border-gray-100 p-4 space-y-3"><div><label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Method</label><div class="grid grid-cols-2 gap-2"><button onclick="selectMethod('mobile_money', this)" class="pay-method-btn flex flex-col items-center gap-1 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 active:scale-95 transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>Mobile Money</button><button onclick="selectMethod('cash', this)" class="pay-method-btn flex flex-col items-center gap-1 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 active:scale-95 transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>Cash</button></div></div><div id="phoneInputWrap" class="hidden"><label class="block text-xs font-bold text-gray-600 mb-1.5">Phone Number (Mobile Money)</label><input type="tel" id="payerPhone" placeholder="0712 345 678 or 255712 345 678" class="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"></div><div><label class="block text-xs font-bold text-gray-600 mb-1.5">Amount</label><div class="flex gap-2"><input type="number" id="payAmount" value="${remaining.toFixed(2)}" step="0.01" min="0" class="flex-1 rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-bold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"><button onclick="setFullAmount(${remaining.toFixed(2)})" class="px-3 py-2.5 rounded-xl bg-gray-100 text-xs font-bold text-gray-600 active:scale-95 transition-all">Full</button></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1.5">Your Name (optional)</label><input type="text" id="payerLabel" placeholder="e.g. John" class="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"></div><button onclick="processPayment()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold text-sm rounded-xl shadow-md active:scale-95 transition-transform">Pay ${formatMoney(remaining)} ${CURRENCY}</button></div>`;
             } else if (remaining <= 0.01) {
                 html += `<div class="mt-5 bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center"><div class="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-3"><svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div><p class="text-sm font-extrabold text-emerald-700">Bill Fully Paid!</p><p class="text-xs text-emerald-600 mt-1">Thank you for dining with us</p></div>`;
             }
@@ -387,19 +409,91 @@
             selectedMethod = method;
             document.querySelectorAll('.pay-method-btn').forEach(b => { b.classList.remove('border-emerald-400','bg-emerald-50','text-emerald-700'); b.classList.add('border-gray-200','text-gray-600'); });
             btn.classList.remove('border-gray-200','text-gray-600'); btn.classList.add('border-emerald-400','bg-emerald-50','text-emerald-700');
+            const phoneWrap = document.getElementById('phoneInputWrap');
+            if (phoneWrap) { if (method === 'mobile_money') phoneWrap.classList.remove('hidden'); else phoneWrap.classList.add('hidden'); }
         }
 
+        let paymentPollTimer = null;
         async function processPayment() {
             if (!selectedMethod) { showToast('Select payment method', true); return; }
             const amount = parseFloat(document.getElementById('payAmount').value);
-            const payerLabel = document.getElementById('payerLabel').value;
+            const payerLabel = document.getElementById('payerLabel')?.value || '';
             if (!amount || amount <= 0) { showToast('Enter valid amount', true); return; }
+
+            const body = { session_id: SESSION_ID, amount, method: selectedMethod, split_type: 'full', payer_label: payerLabel || null };
+            if (selectedMethod === 'mobile_money') {
+                const phone = document.getElementById('payerPhone')?.value?.trim();
+                if (!phone) { showToast('Enter your phone number', true); return; }
+                body.payer_phone = phone;
+            }
+
             try {
-                const res = await fetch('{{ route("public.payment") }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' }, body: JSON.stringify({ session_id: SESSION_ID, amount, method: selectedMethod, split_type: 'full', payer_label: payerLabel || null }) });
+                const res = await fetch('{{ route("public.payment") }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' }, body: JSON.stringify(body) });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message || 'Payment failed');
-                sessionData = data.session; showToast('Payment successful!'); updateHeader(); renderBill();
+
+                if (selectedMethod === 'mobile_money' && data.snippe_reference) {
+                    sessionData = data.session;
+                    updateHeader();
+                    showUssdWaitingModal(data.payment.id, data.message || 'Check your phone for USSD push');
+                } else {
+                    sessionData = data.session;
+                    showToast(selectedMethod === 'cash' ? 'Cash payment recorded. Waiter will confirm.' : 'Payment successful!');
+                    updateHeader();
+                    renderBill();
+                }
             } catch (err) { showToast(err.message, true); }
+        }
+
+        function showUssdWaitingModal(paymentId, msg) {
+            const overlay = document.getElementById('ussdOverlay');
+            document.getElementById('ussdMsg').textContent = msg;
+            document.getElementById('ussdPaymentId').value = paymentId;
+            overlay.classList.remove('hidden');
+            startPaymentPolling(paymentId);
+        }
+
+        function startPaymentPolling(paymentId) {
+            if (paymentPollTimer) clearInterval(paymentPollTimer);
+            let attempts = 0;
+            paymentPollTimer = setInterval(async () => {
+                attempts++;
+                if (attempts > 120) { clearInterval(paymentPollTimer); return; }
+                try {
+                    const res = await fetch('/public/payment/' + paymentId + '/status', { headers: { 'Accept': 'application/json' } });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.payment_status === 'completed') {
+                            clearInterval(paymentPollTimer);
+                            sessionData = data.session;
+                            document.getElementById('ussdOverlay').classList.add('hidden');
+                            showToast('Payment successful!');
+                            updateHeader();
+                            renderBill();
+                        } else if (data.payment_status === 'failed') {
+                            clearInterval(paymentPollTimer);
+                            document.getElementById('ussdOverlay').classList.add('hidden');
+                            showToast('Payment failed. Please try again.', true);
+                            renderBill();
+                        }
+                    }
+                } catch (e) {}
+            }, 5000);
+        }
+
+        async function retryUssd() {
+            const paymentId = document.getElementById('ussdPaymentId').value;
+            try {
+                const res = await fetch('/public/payment/' + paymentId + '/retry-ussd', { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' } });
+                const data = await res.json();
+                showToast(data.message || 'USSD push sent');
+            } catch (e) { showToast('Failed to retry', true); }
+        }
+
+        function cancelUssdWait() {
+            if (paymentPollTimer) clearInterval(paymentPollTimer);
+            document.getElementById('ussdOverlay').classList.add('hidden');
+            renderBill();
         }
 
         function updateHeader() {

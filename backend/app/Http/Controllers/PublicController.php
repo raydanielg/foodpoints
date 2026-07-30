@@ -132,6 +132,7 @@ class PublicController extends Controller
             'method' => 'required|in:mobile_money,card,cash',
             'split_type' => 'required|in:full,by_item,equal,by_amount',
             'payer_label' => 'sometimes|nullable|string|max:100',
+            'payer_phone' => 'sometimes|nullable|string|max:20',
             'item_ids' => 'sometimes|array',
             'item_ids.*' => 'integer|exists:order_items,id',
         ]);
@@ -146,48 +147,186 @@ class PublicController extends Controller
             return response()->json(['message' => 'Amount exceeds remaining balance'], 400);
         }
 
-        DB::beginTransaction();
-        try {
-            $payment = Payment::create([
-                'session_id' => $session->id,
-                'restaurant_id' => $session->restaurant_id,
-                'amount' => $validated['amount'],
-                'method' => $validated['method'],
-                'split_type' => $validated['split_type'],
-                'payer_label' => $validated['payer_label'] ?? null,
-                'status' => $validated['method'] === 'cash' ? 'pending' : 'completed',
-                'item_ids' => $validated['item_ids'] ?? null,
-            ]);
+        $method = $validated['method'];
 
-            if ($payment->status === 'completed') {
-                $session->increment('paid_amount', $validated['amount']);
+        // Cash: stays pending, waiter confirms
+        if ($method === 'cash') {
+            DB::beginTransaction();
+            try {
+                $payment = Payment::create([
+                    'session_id' => $session->id,
+                    'restaurant_id' => $session->restaurant_id,
+                    'amount' => $validated['amount'],
+                    'method' => 'cash',
+                    'split_type' => $validated['split_type'],
+                    'payer_label' => $validated['payer_label'] ?? null,
+                    'status' => 'pending',
+                    'item_ids' => $validated['item_ids'] ?? null,
+                ]);
+                DB::commit();
+                return response()->json([
+                    'payment' => $payment->fresh(),
+                    'session' => $session->fresh()->load(['orders.items.menuItem', 'payments']),
+                ], 201);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['message' => 'Payment failed'], 500);
+            }
+        }
 
-                if ($validated['split_type'] === 'by_item' && !empty($validated['item_ids'])) {
-                    OrderItem::whereIn('id', $validated['item_ids'])
-                        ->update([
-                            'paid' => true,
-                            'paid_by_label' => $validated['payer_label'] ?? null,
-                        ]);
-                }
+        // Mobile money: use Snippe payment gateway
+        if ($method === 'mobile_money') {
+            $snippe = app(\App\Services\SnippeService::class);
 
-                if ($session->fresh()->paid_amount >= $session->total_amount - 0.01) {
-                    $session->update([
-                        'status' => 'closed',
-                        'closed_at' => now(),
-                    ]);
-                    $session->table->update(['status' => 'free']);
-                }
+            if (!$snippe->isConfigured()) {
+                return response()->json(['message' => 'Mobile money payments are not configured. Please use cash.'], 400);
             }
 
-            DB::commit();
+            $phone = $validated['payer_phone'] ?? '';
+            if (empty($phone)) {
+                return response()->json(['message' => 'Phone number is required for mobile money payment'], 400);
+            }
+
+            // Normalize phone: ensure 255XXXXXXXXX format
+            $phone = preg_replace('/\s+/', '', $phone);
+            if (str_starts_with($phone, '0')) {
+                $phone = '255' . substr($phone, 1);
+            } elseif (str_starts_with($phone, '+255')) {
+                $phone = substr($phone, 1);
+            }
+
+            DB::beginTransaction();
+            try {
+                $payment = Payment::create([
+                    'session_id' => $session->id,
+                    'restaurant_id' => $session->restaurant_id,
+                    'amount' => $validated['amount'],
+                    'method' => 'mobile_money',
+                    'split_type' => $validated['split_type'],
+                    'payer_label' => $validated['payer_label'] ?? null,
+                    'payer_phone' => $phone,
+                    'status' => 'pending',
+                    'item_ids' => $validated['item_ids'] ?? null,
+                ]);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['message' => 'Failed to create payment record'], 500);
+            }
+
+            // Create Snippe payment intent
+            $snippeResult = $snippe->createMobilePayment([
+                'amount' => (int) round($validated['amount']),
+                'phone_number' => $phone,
+                'customer_first_name' => $validated['payer_label'] ?? 'Customer',
+                'customer_last_name' => 'Guest',
+                'customer_email' => 'guest@foodpoint.co.tz',
+                'metadata' => [
+                    'payment_id' => $payment->id,
+                    'session_id' => $session->id,
+                    'restaurant_id' => $session->restaurant_id,
+                ],
+            ]);
+
+            if (!$snippeResult['success']) {
+                $payment->update(['status' => 'failed']);
+                return response()->json([
+                    'message' => $snippeResult['message'] ?? 'Failed to initiate mobile money payment',
+                    'payment_status' => 'failed',
+                ], 400);
+            }
+
+            $reference = $snippeResult['data']['reference'] ?? null;
+            if ($reference) {
+                $payment->update(['snippe_reference' => $reference]);
+            }
+
             return response()->json([
                 'payment' => $payment->fresh(),
+                'snippe_reference' => $reference,
+                'snippe_status' => $snippeResult['data']['status'] ?? 'pending',
+                'message' => 'USSD push sent to ' . substr($phone, 0, 6) . '***' . substr($phone, -3) . '. Please authorize the payment on your phone.',
                 'session' => $session->fresh()->load(['orders.items.menuItem', 'payments']),
             ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Payment failed'], 500);
         }
+
+        // Card: not yet supported via Snippe (Snippe is mobile money only)
+        return response()->json(['message' => 'Card payments are not yet available. Please use mobile money or cash.'], 400);
+    }
+
+    public function checkPaymentStatus(Request $request, $paymentId)
+    {
+        $payment = Payment::findOrFail($paymentId);
+
+        if ($payment->snippe_reference) {
+            $snippe = app(\App\Services\SnippeService::class);
+            $result = $snippe->getPaymentStatus($payment->snippe_reference);
+
+            if ($result['success'] && isset($result['data']['status'])) {
+                $snippeStatus = $result['data']['status'];
+
+                if ($snippeStatus === 'completed' && $payment->status === 'pending') {
+                    // Webhook might not have arrived yet, update manually
+                    DB::beginTransaction();
+                    try {
+                        $payment->update(['status' => 'completed']);
+                        $session = $payment->session;
+                        $session->increment('paid_amount', $payment->amount);
+
+                        if ($payment->split_type === 'by_item' && $payment->item_ids) {
+                            OrderItem::whereIn('id', $payment->item_ids)
+                                ->update([
+                                    'paid' => true,
+                                    'paid_by_label' => $payment->payer_label,
+                                ]);
+                        }
+
+                        if ($session->fresh()->paid_amount >= $session->total_amount - 0.01) {
+                            $session->update([
+                                'status' => 'closed',
+                                'closed_at' => now(),
+                            ]);
+                            $session->table->update(['status' => 'free']);
+                        }
+
+                        DB::commit();
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                    }
+                } elseif ($snippeStatus === 'failed' && $payment->status === 'pending') {
+                    $payment->update(['status' => 'failed']);
+                }
+
+                return response()->json([
+                    'payment_status' => $payment->fresh()->status,
+                    'snippe_status' => $snippeStatus,
+                    'session' => $payment->session->fresh()->load(['orders.items.menuItem', 'payments']),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'payment_status' => $payment->status,
+            'session' => $payment->session->load(['orders.items.menuItem', 'payments']),
+        ]);
+    }
+
+    public function retryUssdPush($paymentId)
+    {
+        $payment = Payment::findOrFail($paymentId);
+
+        if (!$payment->snippe_reference || $payment->status !== 'pending') {
+            return response()->json(['message' => 'Cannot retry this payment'], 400);
+        }
+
+        $snippe = app(\App\Services\SnippeService::class);
+        $result = $snippe->pushUssd($payment->snippe_reference);
+
+        if ($result['success']) {
+            return response()->json(['message' => 'USSD push sent again. Check your phone.']);
+        }
+
+        return response()->json(['message' => $result['message'] ?? 'Failed to send USSD push'], 400);
     }
 
     public function sessionStatus($sessionId)
