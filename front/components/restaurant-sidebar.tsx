@@ -15,6 +15,7 @@ import {
   WalletIcon,
   BanknoteIcon,
   SettingsIcon,
+  GraduationCapIcon,
   type LucideIcon,
 } from "lucide-react"
 
@@ -99,6 +100,11 @@ const navMain: NavItem[] = [
       { title: "KYC Verification", url: "/dashboard/kyc" },
       { title: "Help & Support", url: "/dashboard/help" },
     ],
+  },
+  {
+    title: "Learning",
+    url: "/dashboard/learning",
+    icon: GraduationCapIcon,
   },
   {
     title: "Upgrade",
