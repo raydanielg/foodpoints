@@ -83,6 +83,7 @@ const navMain: NavItem[] = [
       { title: "Billing", url: "/dashboard/billing" },
       { title: "Notifications", url: "/dashboard/notifications" },
       { title: "Settings", url: "/dashboard/settings" },
+      { title: "KYC Verification", url: "/dashboard/kyc" },
       { title: "Help & Support", url: "/dashboard/help" },
     ],
   },
