@@ -10,6 +10,9 @@ import {
   ReceiptIcon,
   WalletIcon,
   ClockIcon,
+  EyeIcon,
+  EyeOffIcon,
+  SparklesIcon,
 } from "lucide-react"
 import {
   Area,
@@ -26,6 +29,7 @@ import {
 } from "recharts"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardAction,
@@ -42,7 +46,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 import { Spinner } from "@/components/ui/spinner"
-import { api, type RestaurantStats } from "@/lib/api"
+import { api, type RestaurantStats, type Restaurant } from "@/lib/api"
 
 function formatCurrency(value: string | number) {
   const num = typeof value === "string" ? parseFloat(value) : value
@@ -55,6 +59,13 @@ function formatChartDate(dateStr: string) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }
 
+function getGreeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return "Good morning"
+  if (hour < 17) return "Good afternoon"
+  return "Good evening"
+}
+
 interface KpiCardProps {
   title: string
   value: string
@@ -62,28 +73,44 @@ interface KpiCardProps {
   trend?: string
   trendUp?: boolean
   accent: string
+  hidden?: boolean
+  onToggleHidden?: () => void
+  showEyeToggle?: boolean
 }
 
-function KpiCard({ title, value, icon, trend, trendUp, accent }: KpiCardProps) {
+function KpiCard({ title, value, icon, trend, trendUp, accent, hidden, onToggleHidden, showEyeToggle }: KpiCardProps) {
   return (
-    <Card className="relative overflow-hidden">
+    <Card className="relative overflow-hidden rounded-xl">
       <div
-        className="absolute right-0 top-0 h-24 w-24 rounded-full opacity-10 blur-2xl"
+        className="absolute right-0 top-0 h-20 w-20 rounded-full opacity-[0.07] blur-2xl"
         style={{ backgroundColor: accent }}
       />
-      <CardHeader>
+      <CardHeader className="pb-3">
         <CardDescription className="flex items-center gap-2">
           <span
-            className="flex size-7 items-center justify-center rounded-lg"
-            style={{ backgroundColor: `${accent}20`, color: accent }}
+            className="flex size-7 items-center justify-center rounded-md"
+            style={{ backgroundColor: `${accent}18`, color: accent }}
           >
             {icon}
           </span>
           {title}
         </CardDescription>
-        <CardTitle className="text-xl font-bold tabular-nums sm:text-2xl">
-          {value}
-        </CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-xl font-bold tabular-nums sm:text-2xl">
+            {hidden ? "••••••" : value}
+          </CardTitle>
+          {showEyeToggle && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 text-muted-foreground hover:bg-muted"
+              onClick={onToggleHidden}
+            >
+              {hidden ? <EyeOffIcon className="size-3.5" /> : <EyeIcon className="size-3.5" />}
+              <span className="sr-only">{hidden ? "Show" : "Hide"} value</span>
+            </Button>
+          )}
+        </div>
         {trend && (
           <CardAction>
             <Badge
@@ -123,12 +150,16 @@ const radarChartConfig = {
 
 export default function DashboardPage() {
   const [stats, setStats] = React.useState<RestaurantStats | null>(null)
+  const [restaurant, setRestaurant] = React.useState<Restaurant | null>(null)
   const [loading, setLoading] = React.useState(true)
+  const [revenueHidden, setRevenueHidden] = React.useState(true)
 
   React.useEffect(() => {
-    api
-      .getStats()
-      .then((res) => setStats(res.stats))
+    Promise.all([api.getStats(), api.getRestaurant()])
+      .then(([statsRes, restRes]) => {
+        setStats(statsRes.stats)
+        setRestaurant(restRes.restaurant)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
@@ -183,8 +214,30 @@ export default function DashboardPage() {
     })
   )
 
+  const hotelName = restaurant?.name || "FoodPoint"
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
+
   return (
     <div className="flex w-full flex-col gap-4 px-4 lg:gap-6 lg:px-6">
+      {/* Welcome Header */}
+      <div className="flex flex-col gap-1 rounded-xl border bg-gradient-to-br from-muted/50 to-transparent p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl sm:text-3xl">👋</span>
+          <div>
+            <h2 className="text-lg font-bold tracking-tight sm:text-xl">
+              {getGreeting()}, {hotelName}
+            </h2>
+            <p className="text-sm text-muted-foreground">{today}</p>
+          </div>
+        </div>
+        <div className="hidden items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 sm:flex">
+          <SparklesIcon className="size-4 text-primary" />
+          <span className="text-xs font-medium text-primary">
+            {stats.active_sessions > 0 ? `${stats.active_sessions} tables active now` : "No active tables"}
+          </span>
+        </div>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <KpiCard
@@ -194,6 +247,9 @@ export default function DashboardPage() {
           trend="Today"
           trendUp
           accent="oklch(0.646 0.222 41.116)"
+          hidden={revenueHidden}
+          onToggleHidden={() => setRevenueHidden(!revenueHidden)}
+          showEyeToggle
         />
         <KpiCard
           title="This Week"
@@ -202,6 +258,9 @@ export default function DashboardPage() {
           trend="Week"
           trendUp
           accent="oklch(0.6 0.118 184.704)"
+          hidden={revenueHidden}
+          onToggleHidden={() => setRevenueHidden(!revenueHidden)}
+          showEyeToggle
         />
         <KpiCard
           title="Active Tables"
@@ -222,7 +281,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Revenue Area Chart */}
-      <Card>
+      <Card className="rounded-xl">
         <CardHeader>
           <CardDescription>Revenue Overview</CardDescription>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -231,7 +290,7 @@ export default function DashboardPage() {
           </CardTitle>
           <CardAction>
             <Badge variant="secondary">
-              Total: {formatCurrency(stats.week_revenue)} TZS
+              {revenueHidden ? "Total: ••••••" : `Total: ${formatCurrency(stats.week_revenue)} TZS`}
             </Badge>
           </CardAction>
         </CardHeader>
@@ -309,7 +368,7 @@ export default function DashboardPage() {
       {/* Pie Chart + Radar Chart */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Top Sellers Pie Chart */}
-        <Card className="flex flex-col">
+        <Card className="flex flex-col rounded-xl">
           <CardHeader className="items-center pb-0">
             <CardDescription>Top Sellers (This Month)</CardDescription>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -353,7 +412,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Orders by Status Radar Chart */}
-        <Card>
+        <Card className="rounded-xl">
           <CardHeader className="items-center">
             <CardDescription>Orders by Status (This Week)</CardDescription>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -406,7 +465,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Orders */}
-      <Card>
+      <Card className="rounded-xl">
         <CardHeader>
           <CardDescription>Recent Orders</CardDescription>
           <CardTitle className="flex items-center gap-2 text-lg">
