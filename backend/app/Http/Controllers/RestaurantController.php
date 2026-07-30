@@ -494,16 +494,31 @@ class RestaurantController extends Controller
             ]);
         }
 
-        $paymentResult = $snippe->createPayment([
-            'amount' => (float) $plan->price,
-            'currency' => $plan->currency ?? 'TZS',
-            'method' => $validated['payment_method'],
-            'phone' => $validated['phone'] ?? null,
-            'description' => 'Subscription: ' . $plan->name,
-            'reference' => 'PLAN-' . $restaurant->id . '-' . $plan->id . '-' . time(),
-        ]);
+        $paymentResult = null;
+        if ($validated['payment_method'] === 'mobile_money') {
+            $paymentResult = $snippe->createMobilePayment([
+                'amount' => (float) $plan->price,
+                'phone_number' => $validated['phone'],
+                'metadata' => [
+                    'type' => 'subscription',
+                    'restaurant_id' => $restaurant->id,
+                    'plan_id' => $plan->id,
+                ],
+            ]);
+        } else {
+            $restaurant->update([
+                'plan_id' => $plan->id,
+                'subscription_status' => 'active',
+                'subscription_expires_at' => now()->addDays($plan->duration_days),
+            ]);
 
-        if (!$paymentResult['success']) {
+            return response()->json([
+                'restaurant' => $restaurant->fresh(),
+                'message' => 'Successfully subscribed to ' . $plan->name . '.',
+            ]);
+        }
+
+        if (!$paymentResult || !$paymentResult['success']) {
             return response()->json([
                 'message' => $paymentResult['message'] ?? 'Payment failed. Please try again.',
             ], 422);
