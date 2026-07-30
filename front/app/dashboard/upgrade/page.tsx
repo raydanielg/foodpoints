@@ -280,7 +280,7 @@ export default function UpgradePage() {
               </DialogHeader>
 
               {/* Payment Method */}
-              {!selectedPlan || !isFree(selectedPlan) ? (
+              {selectedPlan && !isFree(selectedPlan) ? (
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2">
                     <Label className="text-sm font-medium">Payment Method</Label>
@@ -368,13 +368,13 @@ export default function UpgradePage() {
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleSubscribe} disabled={processing || (paymentMethod === "mobile_money" && !isFree(selectedPlan) && !phone)}>
+                <Button onClick={handleSubscribe} disabled={processing || (!!selectedPlan && !isFree(selectedPlan) && paymentMethod === "mobile_money" && !phone)}>
                   {processing ? (
                     <Spinner className="size-4" />
                   ) : (
                     <CheckIcon className="size-4" />
                   )}
-                  {isFree(selectedPlan) ? "Activate Free Plan" : `Pay ${selectedPlan && formatPrice(selectedPlan.price)} ${selectedPlan?.currency}`}
+                  {selectedPlan && isFree(selectedPlan) ? "Activate Free Plan" : `Pay ${selectedPlan ? formatPrice(selectedPlan.price) : ""} ${selectedPlan?.currency}`}
                 </Button>
               </DialogFooter>
             </>
