@@ -16,6 +16,13 @@ import {
 
 import { Button } from "@/components/ui/button"
 import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item"
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -210,15 +217,15 @@ export default function Home() {
               QR-based ordering, split payments, kitchen display, and powerful
               management dashboards — everything you need in one platform.
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-row gap-3">
               <Link href="/login">
-                <Button size="lg" className="w-full sm:w-auto">
+                <Button size="lg" className="flex-1 sm:flex-none">
                   Get Started Free
                   <ArrowRightIcon className="ml-2 size-4" />
                 </Button>
               </Link>
               <a href="#how-it-works">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="flex-1 sm:flex-none">
                   See How it Works
                 </Button>
               </a>
@@ -269,18 +276,24 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
-              <div
+              <Item
                 key={feature.title}
-                className="group rounded-2xl border p-6 transition-all hover:border-primary/50 hover:shadow-lg"
+                variant="outline"
+                className="group flex-col items-start gap-3 p-5 transition-all hover:border-primary/50 hover:shadow-md"
               >
-                <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                  <feature.icon className="size-6" />
-                </div>
-                <h3 className="mb-2 text-lg font-semibold">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.desc}</p>
-              </div>
+                <ItemMedia
+                  variant="icon"
+                  className="size-11 rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
+                >
+                  <feature.icon className="size-5" />
+                </ItemMedia>
+                <ItemContent className="gap-1.5">
+                  <ItemTitle className="text-base font-semibold">{feature.title}</ItemTitle>
+                  <ItemDescription className="text-sm leading-relaxed">{feature.desc}</ItemDescription>
+                </ItemContent>
+              </Item>
             ))}
           </div>
         </div>
@@ -298,19 +311,36 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {steps.map((step, i) => (
-              <div key={step.num} className="relative flex flex-col items-center text-center">
-                {i < steps.length - 1 && (
-                  <div className="absolute left-1/2 top-12 hidden h-0.5 w-full translate-x-1/2 bg-border md:block" />
-                )}
-                <div className="relative z-10 mb-6 flex size-24 items-center justify-center rounded-full border-4 border-background bg-primary text-2xl font-bold text-primary-foreground shadow-lg">
-                  {step.num}
+          <div className="relative mx-auto max-w-3xl">
+            {/* Progress line */}
+            <div className="absolute left-5 top-8 h-[calc(100%-4rem)] w-0.5 bg-border md:left-1/2 md:-translate-x-1/2" />
+
+            <div className="flex flex-col gap-8">
+              {steps.map((step, i) => (
+                <div
+                  key={step.num}
+                  className={`relative flex items-start gap-6 md:items-center ${i % 2 === 1 ? "md:flex-row-reverse" : ""}`}
+                >
+                  {/* Step circle */}
+                  <div className="relative z-10 flex size-12 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground shadow-lg ring-4 ring-background transition-transform hover:scale-110 md:mx-auto">
+                    {step.num}
+                  </div>
+
+                  {/* Step content */}
+                  <div className={`flex-1 ${i % 2 === 1 ? "md:text-right" : ""}`}>
+                    <Item
+                      variant="outline"
+                      className={`flex-col items-start gap-2 p-4 ${i % 2 === 1 ? "md:items-end" : ""}`}
+                    >
+                      <ItemContent className="gap-1.5">
+                        <ItemTitle className="text-base font-semibold">{step.title}</ItemTitle>
+                        <ItemDescription className="text-sm leading-relaxed">{step.desc}</ItemDescription>
+                      </ItemContent>
+                    </Item>
+                  </div>
                 </div>
-                <h3 className="mb-2 text-xl font-semibold">{step.title}</h3>
-                <p className="max-w-xs text-sm text-muted-foreground">{step.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
