@@ -466,6 +466,7 @@ class RestaurantController extends Controller
         $restaurant = $user->restaurant;
         $plan = Plan::findOrFail($validated['plan_id']);
 
+        // Free plan: activate immediately
         if ($plan->price == 0 || $plan->price == '0.00') {
             $restaurant->update([
                 'plan_id' => $plan->id,
@@ -479,61 +480,119 @@ class RestaurantController extends Controller
             ]);
         }
 
+        // Paid plan: create a pending payment record
+        $payment = \App\Models\Payment::create([
+            'restaurant_id' => $restaurant->id,
+            'plan_id' => $plan->id,
+            'payment_type' => 'subscription',
+            'session_id' => null,
+            'amount' => $plan->price,
+            'method' => $validated['payment_method'],
+            'split_type' => 'full',
+            'payer_label' => $user->name,
+            'payer_phone' => $validated['phone'] ?? null,
+            'status' => 'pending',
+        ]);
+
         $snippe = app(SnippeService::class);
 
         if (!$snippe->isConfigured()) {
-            $restaurant->update([
-                'plan_id' => $plan->id,
-                'subscription_status' => 'active',
-                'subscription_expires_at' => now()->addDays($plan->duration_days),
-            ]);
-
             return response()->json([
-                'restaurant' => $restaurant->fresh(),
-                'message' => 'Successfully subscribed to ' . $plan->name . '.',
-            ]);
+                'message' => 'Payment service is not configured. Please contact support.',
+                'payment_id' => $payment->id,
+            ], 422);
         }
 
-        $paymentResult = null;
+        // Mobile money: initiate payment via Snippe
         if ($validated['payment_method'] === 'mobile_money') {
             $paymentResult = $snippe->createMobilePayment([
                 'amount' => (float) $plan->price,
                 'phone_number' => $validated['phone'],
+                'customer_first_name' => $user->name,
+                'customer_email' => $user->email ?? 'guest@foodpoint.co.tz',
                 'metadata' => [
                     'type' => 'subscription',
+                    'payment_id' => $payment->id,
                     'restaurant_id' => $restaurant->id,
                     'plan_id' => $plan->id,
                 ],
             ]);
-        } else {
-            $restaurant->update([
-                'plan_id' => $plan->id,
-                'subscription_status' => 'active',
-                'subscription_expires_at' => now()->addDays($plan->duration_days),
-            ]);
+
+            if (!$paymentResult || !$paymentResult['success']) {
+                $payment->update(['status' => 'failed']);
+                return response()->json([
+                    'message' => $paymentResult['message'] ?? 'Payment failed. Please try again.',
+                ], 422);
+            }
+
+            // Store Snippe reference
+            $reference = $paymentResult['data']['reference'] ?? null;
+            if ($reference) {
+                $payment->update(['snippe_reference' => $reference]);
+            }
 
             return response()->json([
-                'restaurant' => $restaurant->fresh(),
-                'message' => 'Successfully subscribed to ' . $plan->name . '.',
+                'payment_id' => $payment->id,
+                'snippe_reference' => $reference,
+                'status' => 'pending',
+                'message' => 'Payment initiated. Please complete the payment on your phone.',
             ]);
         }
 
-        if (!$paymentResult || !$paymentResult['success']) {
+        // Card: create checkout session
+        $checkoutResult = $snippe->createCheckoutSession([
+            'amount' => (float) $plan->price,
+            'customer_name' => $user->name,
+            'phone' => $validated['phone'] ?? '',
+            'email' => $user->email ?? 'guest@foodpoint.co.tz',
+            'redirect_url' => $request->header('Origin', config('app.url')) . '/dashboard/upgrade',
+            'description' => 'Subscription: ' . $plan->name,
+            'metadata' => [
+                'type' => 'subscription',
+                'payment_id' => $payment->id,
+                'restaurant_id' => $restaurant->id,
+                'plan_id' => $plan->id,
+            ],
+        ]);
+
+        if (!$checkoutResult || !$checkoutResult['success']) {
+            $payment->update(['status' => 'failed']);
             return response()->json([
-                'message' => $paymentResult['message'] ?? 'Payment failed. Please try again.',
+                'message' => $checkoutResult['message'] ?? 'Failed to initiate card payment. Please try again.',
             ], 422);
         }
 
-        $restaurant->update([
-            'plan_id' => $plan->id,
-            'subscription_status' => 'active',
-            'subscription_expires_at' => now()->addDays($plan->duration_days),
-        ]);
+        $reference = $checkoutResult['data']['reference'] ?? ($checkoutResult['data']['id'] ?? null);
+        if ($reference) {
+            $payment->update(['snippe_reference' => $reference]);
+        }
 
         return response()->json([
-            'restaurant' => $restaurant->fresh(),
-            'payment' => $paymentResult,
-            'message' => 'Successfully subscribed to ' . $plan->name . '.',
+            'payment_id' => $payment->id,
+            'snippe_reference' => $reference,
+            'checkout_url' => $checkoutResult['data']['checkout_url'] ?? null,
+            'status' => 'pending',
+            'message' => 'Redirecting to payment page...',
+        ]);
+    }
+
+    public function checkSubscriptionPaymentStatus(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'payment_id' => 'required|exists:payments,id',
+        ]);
+
+        $payment = \App\Models\Payment::findOrFail($validated['payment_id']);
+        $restaurant = $request->user()->restaurant;
+
+        if ($payment->restaurant_id !== $restaurant->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        return response()->json([
+            'status' => $payment->status,
+            'subscription_status' => $restaurant->subscription_status,
+            'plan_id' => $restaurant->plan_id,
         ]);
     }
 }
