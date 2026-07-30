@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/restaurant/payout-settings', [RestaurantController::class, 'updatePayoutSettings']);
     Route::get('/plans', [RestaurantController::class, 'plansIndex']);
     Route::post('/plans/subscribe', [RestaurantController::class, 'subscribeToPlan']);
+    Route::get('/plans/payment-status', [RestaurantController::class, 'checkSubscriptionPaymentStatus']);
 
     // Menu categories
     Route::get('/menu/categories', [MenuController::class, 'categoriesIndex']);
