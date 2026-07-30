@@ -7,6 +7,7 @@ use App\Http\Controllers\TableController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
 
 // Public auth
@@ -27,6 +28,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [AuthController::class, 'updateProfile']);
     Route::put('/profile/password', [AuthController::class, 'changePassword']);
     Route::put('/restaurant/subscription', [AuthController::class, 'updateSubscription']);
+
+    // Upload
+    Route::post('/upload', [UploadController::class, 'upload']);
 
     // Restaurant
     Route::get('/restaurant', [RestaurantController::class, 'show']);
