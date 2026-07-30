@@ -90,7 +90,18 @@ document.getElementById('planEditForm').addEventListener('submit', async functio
             body: formData,
         });
 
-        const data = await res.json();
+        let data;
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            data = await res.json();
+        } else {
+            if (res.redirected || res.status === 302) {
+                showToast('Session expired. Refreshing page...', 'error');
+                setTimeout(() => location.reload(), 1000);
+                return;
+            }
+            data = { message: 'Unexpected response from server.' };
+        }
 
         if (res.ok && data.success) {
             showToast(data.message, 'success');

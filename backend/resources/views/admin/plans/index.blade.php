@@ -69,6 +69,37 @@
 
 @push('scripts')
 <script>
+async function toggleActive(id, btn) {
+    btn.disabled = true;
+    const originalText = btn.textContent.trim();
+    btn.textContent = '...';
+
+    try {
+        const res = await fetch('/plans/' + id + '/toggle-active', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            },
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 800);
+        } else {
+            showToast(data.message || 'Failed to update plan status.', 'error');
+            btn.textContent = originalText;
+        }
+    } catch (err) {
+        showToast('Network error. Please try again.', 'error');
+        btn.textContent = originalText;
+    } finally {
+        btn.disabled = false;
+    }
+}
+
 async function deletePlan(id) {
     if (!confirm('Are you sure you want to delete this plan?')) return;
 
