@@ -26,7 +26,10 @@ export function HeroVideo() {
           "aspect-video w-full object-cover transition-opacity duration-500",
           playing ? "opacity-100" : "opacity-0"
         )}
-        controls={playing}
+        controls={false}
+        controlsList="nodownload nofullscreen noremoteplayback"
+        disablePictureInPicture
+        disableRemotePlayback
         playsInline
         preload="metadata"
       >

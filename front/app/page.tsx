@@ -51,31 +51,26 @@ const menuItems = [
   {
     name: "Gourmet Burgers",
     desc: "Juicy, flame-grilled burgers with fresh ingredients",
-    image: "/images/56.jpg",
     price: "From 12,000 TZS",
   },
   {
     name: "Fine Dining",
     desc: "Elegant dishes prepared by expert chefs",
-    image: "/images/58 (1).jpg",
     price: "From 25,000 TZS",
   },
   {
     name: "Restaurant Ambiance",
     desc: "Beautiful dining spaces for every occasion",
-    image: "/images/3394.jpg",
     price: "Reserve a table",
   },
   {
     name: "Signature Dishes",
     desc: "Chef's special creations with local flavors",
-    image: "/images/6342.jpg",
     price: "From 18,000 TZS",
   },
   {
     name: "Premium Experience",
     desc: "Top-tier service and culinary excellence",
-    image: "/images/19743.jpg",
     price: "From 30,000 TZS",
   },
 ]
@@ -303,29 +298,25 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {menuItems.map((item) => (
-              <div
+              <Item
                 key={item.name}
-                className="group overflow-hidden rounded-2xl border transition-all hover:shadow-xl"
+                variant="outline"
+                className="group flex-row items-center gap-4 p-5 transition-all hover:border-primary/50 hover:shadow-md hover:-translate-y-0.5"
               >
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    width={400}
-                    height={300}
-                    className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                    <p className="text-sm font-medium text-white/90">{item.price}</p>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="mb-1 text-lg font-semibold">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground">{item.desc}</p>
-                </div>
-              </div>
+                <ItemMedia
+                  variant="icon"
+                  className="size-12 shrink-0 rounded-xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110"
+                >
+                  <UtensilsCrossedIcon className="size-6" />
+                </ItemMedia>
+                <ItemContent className="gap-1">
+                  <ItemTitle className="text-base font-semibold">{item.name}</ItemTitle>
+                  <ItemDescription className="text-sm leading-relaxed">{item.desc}</ItemDescription>
+                  <span className="mt-1 text-sm font-medium text-primary">{item.price}</span>
+                </ItemContent>
+              </Item>
             ))}
           </div>
         </div>
