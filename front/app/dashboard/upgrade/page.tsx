@@ -44,6 +44,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Item,
+  ItemContent,
+  ItemMedia,
+  ItemTitle,
+  ItemDescription,
+} from "@/components/ui/item"
 import { api, type Restaurant, type Plan } from "@/lib/api"
 import { toast } from "@/components/ui/toast"
 
