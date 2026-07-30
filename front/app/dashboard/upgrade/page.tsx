@@ -12,6 +12,9 @@ import {
   CreditCardIcon,
   CrownIcon,
   CalendarIcon,
+  ClockIcon,
+  XCircleIcon,
+  LoaderIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -71,6 +74,9 @@ export default function UpgradePage() {
   const [success, setSuccess] = React.useState(false)
   const [paymentMethod, setPaymentMethod] = React.useState<"mobile_money" | "card">("mobile_money")
   const [phone, setPhone] = React.useState("")
+  const [paymentStatus, setPaymentStatus] = React.useState<"idle" | "pending" | "success" | "failed">("idle")
+  const [paymentMessage, setPaymentMessage] = React.useState("")
+  const pollRef = React.useRef<ReturnType<typeof setInterval> | null>(null)
 
   const load = () => {
     Promise.all([api.getRestaurant(), api.getPlans()])
@@ -85,30 +91,85 @@ export default function UpgradePage() {
 
   React.useEffect(() => {
     load()
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current)
+    }
   }, [])
 
   const handleSubscribe = async () => {
     if (!selectedPlan) return
     setProcessing(true)
+    setPaymentStatus("idle")
     try {
-      await api.subscribeToPlan({
+      const res = await api.subscribeToPlan({
         plan_id: selectedPlan.id,
         payment_method: paymentMethod,
         phone: paymentMethod === "mobile_money" ? phone : undefined,
       })
-      setSuccess(true)
-      toast.add({ title: "Plan activated!", description: `You are now on ${selectedPlan.name}.`, type: "success" })
-      setTimeout(() => {
-        setSelectedPlan(null)
-        setSuccess(false)
-        setPhone("")
-        load()
-      }, 2500)
+
+      // Free plan — immediate activation
+      if (res.restaurant) {
+        setPaymentStatus("success")
+        toast.add({ title: "Plan activated!", description: `You are now on ${selectedPlan.name}.`, type: "success" })
+        setTimeout(() => {
+          setSelectedPlan(null)
+          setPaymentStatus("idle")
+          setPhone("")
+          load()
+        }, 2500)
+        return
+      }
+
+      // Card payment — redirect to checkout
+      if (res.checkout_url) {
+        setPaymentStatus("pending")
+        setPaymentMessage("Redirecting to payment page...")
+        window.open(res.checkout_url, "_blank")
+        // Start polling
+        if (res.payment_id) startPolling(res.payment_id)
+        return
+      }
+
+      // Mobile money — poll for status
+      if (res.payment_id) {
+        setPaymentStatus("pending")
+        setPaymentMessage(res.message || "Please complete the payment on your phone.")
+        startPolling(res.payment_id)
+      }
     } catch (err: any) {
-      toast.add({ title: "Failed to subscribe", description: err?.message || "Something went wrong", type: "error" })
+      setPaymentStatus("failed")
+      setPaymentMessage(err?.message || "Something went wrong")
+      toast.add({ title: "Payment failed", description: err?.message || "Something went wrong", type: "error" })
     } finally {
       setProcessing(false)
     }
+  }
+
+  const startPolling = (paymentId: number) => {
+    if (pollRef.current) clearInterval(pollRef.current)
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await api.checkSubscriptionPaymentStatus(paymentId)
+        if (res.status === "completed") {
+          if (pollRef.current) clearInterval(pollRef.current)
+          setPaymentStatus("success")
+          setPaymentMessage("Payment received! Your plan is now active.")
+          toast.add({ title: "Payment successful!", description: "Your plan has been activated.", type: "success" })
+          setTimeout(() => {
+            setSelectedPlan(null)
+            setPaymentStatus("idle")
+            setPhone("")
+            load()
+          }, 2500)
+        } else if (res.status === "failed") {
+          if (pollRef.current) clearInterval(pollRef.current)
+          setPaymentStatus("failed")
+          setPaymentMessage("Payment failed. Please try again.")
+        }
+      } catch {
+        // Keep polling on error
+      }
+    }, 5000)
   }
 
   if (loading) {
