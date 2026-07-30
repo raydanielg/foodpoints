@@ -438,4 +438,87 @@ class RestaurantController extends Controller
             'message' => 'Payout settings updated successfully.',
         ]);
     }
+
+    public function plansIndex(): JsonResponse
+    {
+        $plans = Plan::where('is_active', true)
+            ->orderBy('price', 'asc')
+            ->get();
+
+        $restaurant = request()->user()->restaurant;
+        $currentPlanId = $restaurant?->plan_id;
+
+        return response()->json([
+            'plans' => $plans,
+            'current_plan_id' => $currentPlanId,
+        ]);
+    }
+
+    public function subscribeToPlan(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'plan_id' => 'required|exists:plans,id',
+            'payment_method' => 'required|in:mobile_money,card',
+            'phone' => 'required_if:payment_method,mobile_money|string|max:20',
+        ]);
+
+        $user = $request->user();
+        $restaurant = $user->restaurant;
+        $plan = Plan::findOrFail($validated['plan_id']);
+
+        if ($plan->price == 0 || $plan->price == '0.00') {
+            $restaurant->update([
+                'plan_id' => $plan->id,
+                'subscription_status' => 'active',
+                'subscription_expires_at' => null,
+            ]);
+
+            return response()->json([
+                'restaurant' => $restaurant->fresh(),
+                'message' => 'Successfully subscribed to ' . $plan->name . ' (Free plan).',
+            ]);
+        }
+
+        $snippe = app(SnippeService::class);
+
+        if (!$snippe->isConfigured()) {
+            $restaurant->update([
+                'plan_id' => $plan->id,
+                'subscription_status' => 'active',
+                'subscription_expires_at' => now()->addDays($plan->duration_days),
+            ]);
+
+            return response()->json([
+                'restaurant' => $restaurant->fresh(),
+                'message' => 'Successfully subscribed to ' . $plan->name . '.',
+            ]);
+        }
+
+        $paymentResult = $snippe->createPayment([
+            'amount' => (float) $plan->price,
+            'currency' => $plan->currency ?? 'TZS',
+            'method' => $validated['payment_method'],
+            'phone' => $validated['phone'] ?? null,
+            'description' => 'Subscription: ' . $plan->name,
+            'reference' => 'PLAN-' . $restaurant->id . '-' . $plan->id . '-' . time(),
+        ]);
+
+        if (!$paymentResult['success']) {
+            return response()->json([
+                'message' => $paymentResult['message'] ?? 'Payment failed. Please try again.',
+            ], 422);
+        }
+
+        $restaurant->update([
+            'plan_id' => $plan->id,
+            'subscription_status' => 'active',
+            'subscription_expires_at' => now()->addDays($plan->duration_days),
+        ]);
+
+        return response()->json([
+            'restaurant' => $restaurant->fresh(),
+            'payment' => $paymentResult,
+            'message' => 'Successfully subscribed to ' . $plan->name . '.',
+        ]);
+    }
 }
