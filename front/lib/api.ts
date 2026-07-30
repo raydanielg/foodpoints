@@ -557,4 +557,17 @@ export const api = {
       method: "PUT",
       body: JSON.stringify(body),
     }),
+
+  // ===== Plans =====
+  getPlans: () =>
+    apiRequest<{ plans: Plan[]; current_plan_id: number | null }>("/plans"),
+  subscribeToPlan: (body: {
+    plan_id: number
+    payment_method: "mobile_money" | "card"
+    phone?: string
+  }) =>
+    apiRequest<{ restaurant: Restaurant; message: string }>("/plans/subscribe", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 }
