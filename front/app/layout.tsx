@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
         <link rel="icon" href="/food-irradiation.png" />
         <TooltipProvider>{children}</TooltipProvider>
         <Analytics />
+        <Toaster />
       </body>
     </html>
   );
