@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Restaurant;
 use App\Models\User;
 use App\Models\Withdrawal;
+use App\Models\Plan;
 use App\Services\SnippeService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
