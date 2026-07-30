@@ -1,11 +1,19 @@
 <?php
 
+use App\Http\Controllers\Admin\AuthController;
 use Illuminate\Support\Facades\Route;
 
+// Redirect root to admin login
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('admin.login');
 });
 
-Auth::routes();
+// Admin auth (login only, no registration)
+Route::get('/login', [AuthController::class, 'showLogin'])->name('admin.login');
+Route::post('/login', [AuthController::class, 'login'])->name('admin.login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Admin dashboard (super_admin only)
+Route::middleware(['auth', 'super_admin'])->group(function () {
+    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
+});
