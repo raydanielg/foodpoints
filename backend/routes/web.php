@@ -44,6 +44,8 @@ Route::middleware(['auth', 'super_admin'])->group(function () {
     // Plans CRUD
     Route::resource('plans', \App\Http\Controllers\Admin\PlanController::class)
         ->names('admin.plans');
+    Route::post('/plans/{plan}/toggle-active', [\App\Http\Controllers\Admin\PlanController::class, 'toggleActive'])
+        ->name('admin.plans.toggleActive');
 
     // Subscriptions
     Route::get('/subscriptions', [\App\Http\Controllers\Admin\SubscriptionController::class, 'index'])
