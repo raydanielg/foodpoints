@@ -12,6 +12,9 @@ import {
   StoreIcon,
   ChevronRightIcon,
   SparklesIcon,
+  WalletIcon,
+  BanknoteIcon,
+  SettingsIcon,
   type LucideIcon,
 } from "lucide-react"
 
@@ -71,6 +74,16 @@ const navMain: NavItem[] = [
       { title: "Active Orders", url: "/dashboard/orders" },
       { title: "Kitchen Display", url: "/dashboard/kitchen" },
       { title: "Payments", url: "/dashboard/payments" },
+    ],
+  },
+  {
+    title: "Finance",
+    url: "/dashboard/revenue",
+    icon: WalletIcon,
+    items: [
+      { title: "Revenue", url: "/dashboard/revenue" },
+      { title: "Withdrawals", url: "/dashboard/withdrawals" },
+      { title: "Payout Settings", url: "/dashboard/payout-settings" },
     ],
   },
   {
