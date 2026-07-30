@@ -138,7 +138,7 @@ export default function AccountPage() {
       </div>
 
       {/* Profile summary card */}
-      <Card className="max-w-2xl">
+      <Card className="rounded-xl">
         <CardContent className="flex items-center gap-4 p-4">
           <Avatar className="size-16 rounded-xl">
             {user.avatar_url && (
@@ -163,7 +163,7 @@ export default function AccountPage() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="profile" className="max-w-2xl">
+      <Tabs defaultValue="profile" className="w-full">
         <TabsList>
           <TabsTrigger value="profile">
             <UserIcon className="size-4" />
