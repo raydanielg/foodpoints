@@ -296,7 +296,7 @@ export default function CustomerPage() {
               </div>
             )}
             <div>
-              <p className="font-bold leading-tight">{restaurant?.name || "Restaurant"}</p>
+              <p className="font-bold leading-tight">{restaurant?.name || "FoodPoint"}</p>
               <p className="text-xs text-muted-foreground">
                 Table {table.table_number} · Session #{session.id}
               </p>

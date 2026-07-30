@@ -120,7 +120,7 @@ export function RestaurantSidebar({
             <SidebarMenuButton
               size="lg"
               className="data-[slot=sidebar-menu-button]:p-1.5!"
-              tooltip={user?.restaurant?.name || "Restaurant"}
+              tooltip={user?.restaurant?.name || "FoodPoint"}
               render={<Link href="/dashboard" />}
             >
               {user?.restaurant?.logo_url ? (
@@ -137,10 +137,10 @@ export function RestaurantSidebar({
               )}
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {user?.restaurant?.name || "Restaurant"}
+                  {user?.restaurant?.name || "FoodPoint"}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  Management System
+                  FoodPoint
                 </span>
               </div>
             </SidebarMenuButton>

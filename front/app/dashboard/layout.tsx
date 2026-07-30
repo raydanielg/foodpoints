@@ -67,7 +67,7 @@ export default function DashboardLayout({
               className="mx-2 data-[orientation=vertical]:h-4"
             />
             <h1 className="truncate text-base font-medium">
-              {user?.restaurant?.name || "Restaurant"}
+              {user?.restaurant?.name || "FoodPoint"}
             </h1>
             <div className="ml-auto flex items-center gap-2">
               <div className="hidden items-center gap-2 sm:flex">

@@ -15,8 +15,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Restaurant Management System",
+  title: "FoodPoint",
   description: "QR-based ordering, split payments, kitchen display, and management panels.",
+  icons: {
+    icon: "/food-irradiation.png",
+    apple: "/food-irradiation.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -41,6 +45,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <link rel="icon" href="/food-irradiation.png" />
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>

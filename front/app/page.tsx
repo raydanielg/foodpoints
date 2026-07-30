@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { HotelIcon } from "lucide-react"
+import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 
@@ -7,11 +7,16 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
       <div className="flex max-w-md flex-col items-center text-center">
-        <div className="mb-6 flex size-16 items-center justify-center rounded-2xl bg-primary">
-          <HotelIcon className="size-8 text-primary-foreground" />
-        </div>
+        <Image
+          src="/food-irradiation.png"
+          alt="FoodPoint"
+          width={72}
+          height={72}
+          className="mb-6 rounded-2xl"
+          priority
+        />
         <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground">
-          Restaurant Management System
+          FoodPoint
         </h1>
         <p className="mb-8 text-muted-foreground">
           QR-based ordering, split payments, kitchen display, and full

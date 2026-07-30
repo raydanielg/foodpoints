@@ -4,11 +4,12 @@ import * as React from "react"
 import {
   EyeIcon,
   EyeOffIcon,
-  HotelIcon,
   LockIcon,
   MailIcon,
   UserIcon,
+  UtensilsCrossedIcon,
 } from "lucide-react"
+import Image from "next/image"
 
 import {
   Alert,
@@ -87,25 +88,22 @@ export default function AuthPage() {
   return (
     <div className="flex min-h-screen w-full">
       {/* Left side - Branding */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-12 lg:flex">
-        <div
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1566073771259-6a8506099948?w=1200&q=80)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 p-12 lg:flex">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, white 0%, transparent 50%)" }} />
         <div className="relative z-10 flex items-center gap-3 text-white">
-          <div className="flex size-11 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
-            <HotelIcon className="size-6" />
-          </div>
+          <Image
+            src="/food-irradiation.png"
+            alt="FoodPoint"
+            width={44}
+            height={44}
+            className="rounded-xl bg-white/10 p-1 backdrop-blur-sm"
+            priority
+          />
           <div>
             <p className="text-lg font-semibold tracking-tight">
-              Restaurant System
+              FoodPoint
             </p>
-            <p className="text-sm text-white/60">Management Platform</p>
+            <p className="text-sm text-white/70">Restaurant Management Platform</p>
           </div>
         </div>
 
@@ -122,15 +120,15 @@ export default function AuthPage() {
         <div className="relative z-10 flex gap-8 text-white">
           <div>
             <p className="text-3xl font-bold">500+</p>
-            <p className="text-sm text-white/60">Restaurants</p>
+            <p className="text-sm text-white/70">Restaurants</p>
           </div>
           <div>
             <p className="text-3xl font-bold">99.9%</p>
-            <p className="text-sm text-white/60">Uptime</p>
+            <p className="text-sm text-white/70">Uptime</p>
           </div>
           <div>
             <p className="text-3xl font-bold">24/7</p>
-            <p className="text-sm text-white/60">Support</p>
+            <p className="text-sm text-white/70">Support</p>
           </div>
         </div>
       </div>
@@ -140,14 +138,19 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="mb-8 flex items-center justify-center gap-3 lg:hidden">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-primary">
-              <HotelIcon className="size-5 text-primary-foreground" />
-            </div>
+            <Image
+              src="/food-irradiation.png"
+              alt="FoodPoint"
+              width={40}
+              height={40}
+              className="rounded-xl"
+              priority
+            />
             <div>
               <p className="text-base font-semibold tracking-tight">
-                Restaurant
+                FoodPoint
               </p>
-              <p className="text-xs text-muted-foreground">Management System</p>
+              <p className="text-xs text-muted-foreground">Restaurant Management</p>
             </div>
           </div>
 
@@ -224,7 +227,7 @@ export default function AuthPage() {
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="restaurant_name">Restaurant Name</Label>
                     <div className="relative">
-                      <HotelIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                      <UtensilsCrossedIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="restaurant_name"
                         type="text"
