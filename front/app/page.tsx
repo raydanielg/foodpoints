@@ -377,15 +377,40 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative w-full max-w-sm">
-            <div className="overflow-hidden rounded-3xl border-4 border-white/20 shadow-2xl">
-              <Image
-                src="/images/6342.jpg"
-                alt="Mobile ordering experience"
-                width={400}
-                height={600}
-                className="w-full object-cover"
-              />
+          <div className="flex w-full max-w-sm flex-col gap-3">
+            {/* Play Store card */}
+            <div className="flex items-center gap-4 rounded-2xl border bg-background p-4 shadow-xl">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-green-600">
+                <svg viewBox="0 0 24 24" className="size-6 fill-white" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z" />
+                  <path d="M14.539 12.747l2.86 2.86-10.83 6.26 7.97-9.12a.5.5 0 0 1 .7-.87z" opacity="0.7" />
+                  <path d="M17.399 8.393l-2.86 2.86-10.83-6.26 7.97 9.12a.5.5 0 0 1 .7-.87z" opacity="0.7" />
+                  <path d="M20.297 10.386l-4.758 2.747 2.448 2.448 2.31-1.335a1 1 0 0 0 0-1.732z" />
+                </svg>
+              </div>
+              <div className="flex flex-1 flex-col">
+                <span className="text-[10px] font-medium text-muted-foreground">GET IT ON</span>
+                <span className="text-base font-bold leading-tight">Google Play</span>
+              </div>
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                Coming Soon
+              </span>
+            </div>
+
+            {/* App Store card */}
+            <div className="flex items-center gap-4 rounded-2xl border bg-background p-4 shadow-xl">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-black">
+                <svg viewBox="0 0 24 24" className="size-6 fill-white" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+                </svg>
+              </div>
+              <div className="flex flex-1 flex-col">
+                <span className="text-[10px] font-medium text-muted-foreground">Download on the</span>
+                <span className="text-base font-bold leading-tight">App Store</span>
+              </div>
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                Coming Soon
+              </span>
             </div>
           </div>
         </div>
