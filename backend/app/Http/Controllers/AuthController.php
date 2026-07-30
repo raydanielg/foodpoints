@@ -18,8 +18,7 @@ class AuthController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'sometimes|nullable|string|max:20',
+            'phone' => 'sometimes|string|regex:/^255\d{9}$/|unique:users,phone,' . $user->id,
             'avatar_url' => 'sometimes|nullable|string',
         ]);
 
@@ -49,10 +48,9 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'phone' => ['required', 'string', 'regex:/^255\d{9}$/', 'unique:users,phone'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'restaurant_name' => ['required', 'string', 'max:255'],
-            'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
         ]);
 
         DB::beginTransaction();
@@ -74,9 +72,8 @@ class AuthController extends Controller
 
             $user = User::create([
                 'name' => $validated['name'],
-                'email' => $validated['email'],
+                'phone' => $validated['phone'],
                 'password' => $validated['password'],
-                'phone' => $validated['phone'] ?? null,
                 'restaurant_id' => $restaurant->id,
                 'role' => 'owner',
             ]);
@@ -98,15 +95,15 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $request->validate([
-            'email' => ['required', 'string', 'email'],
+            'phone' => ['required', 'string', 'regex:/^255\d{9}$/'],
             'password' => ['required', 'string'],
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('phone', $request->phone)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'phone' => ['The provided credentials are incorrect.'],
             ]);
         }
 

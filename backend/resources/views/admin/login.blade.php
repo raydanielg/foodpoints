@@ -164,17 +164,17 @@
             <form method="POST" action="{{ route('admin.login.post') }}">
                 @csrf
                 <div class="form-group">
-                    <label class="form-label" for="email">Email Address</label>
+                    <label class="form-label" for="phone">Phone Number</label>
                     <input
-                        id="email"
-                        type="email"
+                        id="phone"
+                        type="tel"
                         name="email"
                         value="{{ old('email') }}"
                         class="form-input {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                        placeholder="admin@foodpoint.co.tz"
+                        placeholder="2557XXXXXXXX"
                         required
                         autofocus
-                        autocomplete="email"
+                        autocomplete="tel"
                     >
                     @error('email')
                         <div class="error-msg">{{ $message }}</div>

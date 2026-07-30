@@ -24,16 +24,16 @@ class User extends Authenticatable
         return $this->belongsTo(Restaurant::class);
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function findForPassport($username)
+    {
+        return $this->where('phone', $username)->first();
     }
 }

@@ -11,9 +11,10 @@ class SuperAdminSeeder extends Seeder
     public function run(): void
     {
         User::firstOrCreate(
-            ['email' => 'admin@foodpoint.co.tz'],
+            ['phone' => '255700000000'],
             [
                 'name' => 'Super Admin',
+                'email' => 'admin@foodpoint.co.tz',
                 'password' => Hash::make('FoodPoint2024'),
                 'role' => 'super_admin',
                 'restaurant_id' => null,

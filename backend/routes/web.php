@@ -17,8 +17,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
 Route::middleware(['auth', 'super_admin'])->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
 
-    // Restaurants CRUD
+    // Restaurants CRUD (no create/store - restaurants register themselves)
     Route::resource('restaurants', \App\Http\Controllers\Admin\RestaurantController::class)
+        ->except(['create', 'store'])
         ->names('admin.restaurants');
     Route::post('/restaurants/{restaurant}/toggle-status', [\App\Http\Controllers\Admin\RestaurantController::class, 'toggleStatus'])
         ->name('admin.restaurants.toggleStatus');
