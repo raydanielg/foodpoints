@@ -144,10 +144,20 @@ export interface Payment {
   method: "mobile_money" | "card" | "cash"
   split_type: "full" | "by_item" | "equal" | "by_amount"
   payer_label: string | null
+  payer_phone: string | null
   status: "pending" | "completed" | "failed"
   transaction_ref: string | null
+  snippe_reference: string | null
   item_ids: number[] | null
   created_at: string
+  session?: {
+    id: number
+    table?: {
+      id: number
+      name: string
+    }
+    status: string
+  }
 }
 
 export interface AuthResponse {
