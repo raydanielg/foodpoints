@@ -26,7 +26,9 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $user = User::where('phone', $credentials['email'])->first();
+        $user = User::where('email', $credentials['email'])
+            ->orWhere('phone', $credentials['email'])
+            ->first();
 
         if (!$user || !\Illuminate\Support\Facades\Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
