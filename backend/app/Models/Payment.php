@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Plan;
+use App\Models\TableSession;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +15,8 @@ class Payment extends Model
     protected $fillable = [
         'session_id',
         'restaurant_id',
+        'plan_id',
+        'payment_type',
         'amount',
         'method',
         'split_type',
@@ -40,5 +44,10 @@ class Payment extends Model
     public function restaurant(): BelongsTo
     {
         return $this->belongsTo(Restaurant::class);
+    }
+
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(Plan::class);
     }
 }
