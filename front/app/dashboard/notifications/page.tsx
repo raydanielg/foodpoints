@@ -149,7 +149,7 @@ export default function NotificationsPage() {
         </p>
       </div>
 
-      <Card className="max-w-2xl">
+      <Card className="rounded-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BellIcon className="size-5" />
