@@ -112,4 +112,19 @@ class PlanController extends Controller
 
         return redirect()->route('admin.plans.index')->with('success', 'Plan deleted successfully.');
     }
+
+    public function toggleActive(Plan $plan)
+    {
+        $plan->update(['is_active' => !$plan->is_active]);
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Plan ' . ($plan->is_active ? 'activated' : 'deactivated') . ' successfully.',
+                'is_active' => $plan->is_active,
+            ]);
+        }
+
+        return redirect()->route('admin.plans.index')->with('success', 'Plan status updated successfully.');
+    }
 }
