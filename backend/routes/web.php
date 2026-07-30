@@ -1,29 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Owner\OwnerAuthController;
-use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\SnippeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // Snippe webhook (no CSRF)
 Route::post('/webhooks/snippe', [SnippeWebhookController::class, 'handleWebhook'])->name('snippe.webhook');
-
-// Owner portal auth
-Route::get('/portal/login', [OwnerAuthController::class, 'showLogin'])->name('owner.login');
-Route::post('/portal/login', [OwnerAuthController::class, 'login'])->name('owner.login.post');
-Route::post('/portal/logout', [OwnerAuthController::class, 'logout'])->name('owner.logout');
-
-// Owner portal (protected)
-Route::middleware(['auth', 'owner'])->prefix('/portal')->group(function () {
-    Route::get('/dashboard', [OwnerDashboardController::class, 'dashboard'])->name('owner.dashboard');
-    Route::get('/transactions', [OwnerDashboardController::class, 'transactions'])->name('owner.transactions');
-    Route::get('/withdrawals', [OwnerDashboardController::class, 'withdrawals'])->name('owner.withdrawals');
-    Route::post('/withdrawals/request', [OwnerDashboardController::class, 'requestWithdrawal'])->name('owner.withdrawals.request');
-    Route::get('/payout-settings', [OwnerDashboardController::class, 'payoutSettings'])->name('owner.payout-settings');
-    Route::post('/payout-settings', [OwnerDashboardController::class, 'updatePayoutSettings'])->name('owner.payout-settings.update');
-});
 
 // Public restaurant pages (customer-facing)
 Route::get('/r/{slug}', [PublicController::class, 'restaurantPage'])->name('public.restaurant');
