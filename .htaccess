@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Redirect all requests to backend/public directory
+    RewriteCond %{REQUEST_URI} !^/backend/public
+    RewriteRule ^(.*)$ /backend/public/$1 [L]
+</IfModule>
