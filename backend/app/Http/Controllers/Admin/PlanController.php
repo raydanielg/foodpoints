@@ -33,22 +33,26 @@ class PlanController extends Controller
             'duration_days' => 'required|integer|min:1',
             'currency' => 'required|string|max:10',
             'features' => 'nullable|string',
-            'is_active' => 'boolean',
+            'is_active' => 'sometimes|boolean',
         ]);
 
         $features = $request->filled('features')
             ? array_filter(array_map('trim', explode("\n", $request->features)))
             : null;
 
-        Plan::create([
+        $plan = Plan::create([
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
             'price' => $validated['price'],
             'duration_days' => $validated['duration_days'],
             'currency' => $validated['currency'],
             'features' => $features,
-            'is_active' => $request->boolean('is_active', true),
+            'is_active' => $request->has('is_active'),
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Plan created successfully.', 'plan' => $plan]);
+        }
 
         return redirect()->route('admin.plans.index')->with('success', 'Plan created successfully.');
     }
@@ -67,7 +71,7 @@ class PlanController extends Controller
             'duration_days' => 'required|integer|min:1',
             'currency' => 'required|string|max:10',
             'features' => 'nullable|string',
-            'is_active' => 'boolean',
+            'is_active' => 'sometimes|boolean',
         ]);
 
         $features = $request->filled('features')
@@ -81,8 +85,12 @@ class PlanController extends Controller
             'duration_days' => $validated['duration_days'],
             'currency' => $validated['currency'],
             'features' => $features,
-            'is_active' => $request->boolean('is_active', true),
+            'is_active' => $request->has('is_active'),
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Plan updated successfully.', 'plan' => $plan]);
+        }
 
         return redirect()->route('admin.plans.index')->with('success', 'Plan updated successfully.');
     }
@@ -90,10 +98,18 @@ class PlanController extends Controller
     public function destroy(Plan $plan)
     {
         if ($plan->restaurants()->exists()) {
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Cannot delete a plan that has restaurants assigned.'], 422);
+            }
             return redirect()->back()->with('error', 'Cannot delete a plan that has restaurants assigned.');
         }
 
         $plan->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Plan deleted successfully.']);
+        }
+
         return redirect()->route('admin.plans.index')->with('success', 'Plan deleted successfully.');
     }
 }

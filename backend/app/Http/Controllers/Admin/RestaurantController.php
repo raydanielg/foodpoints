@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Restaurant;
+use App\Models\RestaurantTable;
+use App\Models\TableSession;
 use Illuminate\Http\Request;
 
 class RestaurantController extends Controller
@@ -78,5 +80,30 @@ class RestaurantController extends Controller
         $restaurant->save();
 
         return redirect()->back()->with('success', 'Restaurant status updated.');
+    }
+
+    public function tables(Restaurant $restaurant)
+    {
+        $tables = RestaurantTable::where('restaurant_id', $restaurant->id)
+            ->withCount(['sessions as total_sessions' => function ($q) {
+                $q->where('status', 'closed');
+            }])
+            ->with(['sessions' => function ($q) {
+                $q->where('status', 'open')->with(['orders.items.menuItem']);
+            }])
+            ->orderBy('table_number')
+            ->get();
+
+        $totalRevenue = TableSession::where('restaurant_id', $restaurant->id)
+            ->where('status', 'closed')
+            ->sum('paid_amount');
+
+        $activeSessions = TableSession::where('restaurant_id', $restaurant->id)
+            ->where('status', 'open')
+            ->count();
+
+        $totalOrders = \App\Models\Order::where('restaurant_id', $restaurant->id)->count();
+
+        return view('admin.restaurants.tables', compact('restaurant', 'tables', 'totalRevenue', 'activeSessions', 'totalOrders'));
     }
 }

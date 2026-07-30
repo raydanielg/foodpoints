@@ -10,6 +10,7 @@
         <p class="text-sm text-gray-400">Restaurant details and management</p>
     </div>
     <div class="flex gap-2">
+        <a href="{{ route('admin.restaurants.tables', $restaurant) }}" class="px-4 py-2 text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-lg transition-colors">Tables</a>
         <a href="{{ route('admin.restaurants.edit', $restaurant) }}" class="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors">Edit</a>
         <a href="{{ route('admin.restaurants.index') }}" class="px-4 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors">Back</a>
     </div>

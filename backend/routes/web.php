@@ -31,6 +31,8 @@ Route::middleware(['auth', 'super_admin'])->group(function () {
         ->names('admin.restaurants');
     Route::post('/restaurants/{restaurant}/toggle-status', [\App\Http\Controllers\Admin\RestaurantController::class, 'toggleStatus'])
         ->name('admin.restaurants.toggleStatus');
+    Route::get('/restaurants/{restaurant}/tables', [\App\Http\Controllers\Admin\RestaurantController::class, 'tables'])
+        ->name('admin.restaurants.tables');
 
     // Plans CRUD
     Route::resource('plans', \App\Http\Controllers\Admin\PlanController::class)

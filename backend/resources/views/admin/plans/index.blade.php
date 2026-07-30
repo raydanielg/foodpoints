@@ -50,11 +50,7 @@
         <div class="px-5 py-3 border-t border-gray-50 flex gap-2">
             <a href="{{ route('admin.plans.edit', $plan) }}" class="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-md transition-colors">Edit</a>
             @if ($plan->restaurants_count === 0)
-            <form method="POST" action="{{ route('admin.plans.destroy', $plan) }}" onsubmit="return confirm('Delete this plan?')" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 hover:bg-red-100 rounded-md transition-colors">Delete</button>
-            </form>
+            <button onclick="deletePlan({{ $plan->id }})" class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 hover:bg-red-100 rounded-md transition-colors">Delete</button>
             @endif
         </div>
     </div>
@@ -64,4 +60,49 @@
     </div>
     @endforelse
 </div>
+
+<div id="toastContainer" class="fixed top-20 right-6 z-[60] space-y-2"></div>
 @endsection
+
+@push('scripts')
+<script>
+async function deletePlan(id) {
+    if (!confirm('Are you sure you want to delete this plan?')) return;
+
+    try {
+        const res = await fetch('/plans/' + id, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            },
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.message || 'Failed to delete plan.', 'error');
+        }
+    } catch (err) {
+        showToast('Network error.', 'error');
+    }
+}
+
+function showToast(msg, type) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    const colors = type === 'success' ? 'bg-emerald-600 border-emerald-500' : 'bg-red-600 border-red-500';
+    toast.className = `flex items-center gap-2 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg border ${colors} transition-all`;
+    toast.style.cssText = 'animation: fadeIn 0.2s ease-out both;';
+    const icon = type === 'success'
+        ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
+        : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+    toast.innerHTML = icon + '<span>' + msg + '</span>';
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+</script>
+@endpush

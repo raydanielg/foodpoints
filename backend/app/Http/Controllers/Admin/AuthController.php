@@ -69,6 +69,58 @@ class AuthController extends Controller
             $q->where('role', 'owner')->limit(1);
         }])->orderBy('created_at', 'desc')->limit(10)->get();
 
-        return view('admin.dashboard', compact('stats', 'restaurants'));
+        // Chart data: Restaurant registrations over last 7 days
+        $registrations = \App\Models\Restaurant::selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->where('created_at', '>=', now()->subDays(6)->startOfDay())
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)')
+            ->get()
+            ->keyBy('date');
+
+        $regLabels = [];
+        $regData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $regLabels[] = now()->subDays($i)->format('D');
+            $regData[] = $registrations->has($date) ? $registrations[$date]->count : 0;
+        }
+
+        // Chart data: Plan distribution
+        $planDist = \App\Models\Plan::withCount('restaurants')->having('restaurants_count', '>', 0)->get();
+        $planLabels = $planDist->pluck('name')->toArray();
+        $planData = $planDist->pluck('restaurants_count')->toArray();
+
+        // Chart data: Revenue from payments (last 7 days)
+        $revenue = \App\Models\Payment::selectRaw('DATE(created_at) as date, SUM(amount) as total')
+            ->where('status', 'completed')
+            ->where('created_at', '>=', now()->subDays(6)->startOfDay())
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)')
+            ->get()
+            ->keyBy('date');
+
+        $revLabels = [];
+        $revData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $revLabels[] = now()->subDays($i)->format('D');
+            $revData[] = $revenue->has($date) ? (float) $revenue[$date]->total : 0;
+        }
+
+        // Chart data: Subscription status distribution
+        $subStats = [
+            'active' => Restaurant::where('subscription_status', 'active')->count(),
+            'suspended' => Restaurant::where('subscription_status', 'suspended')->count(),
+            'pending' => Restaurant::where('subscription_status', 'pending')->count(),
+        ];
+
+        $charts = [
+            'registrations' => ['labels' => $regLabels, 'data' => $regData],
+            'revenue' => ['labels' => $revLabels, 'data' => $revData],
+            'plans' => ['labels' => $planLabels, 'data' => $planData],
+            'subscriptions' => ['labels' => array_keys($subStats), 'data' => array_values($subStats)],
+        ];
+
+        return view('admin.dashboard', compact('stats', 'restaurants', 'charts'));
     }
 }
