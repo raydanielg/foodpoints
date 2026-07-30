@@ -26,10 +26,10 @@ import {
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-  CheckCircleFillIcon,
-  DotsVerticalIcon,
+  CircleCheckIcon,
+  EllipsisVerticalIcon,
   GripVerticalIcon,
-  LayoutColumnsIcon,
+  Columns3Icon,
   TrendingUpIcon,
   ClockIcon,
   XCircleIcon,
@@ -154,7 +154,7 @@ function getStatusBadge(status: string) {
     case "completed":
       return (
         <Badge variant="outline" className="gap-1 px-1.5 text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30">
-          <CheckCircleFillIcon className="size-3 fill-emerald-500" />
+          <CircleCheckIcon className="size-3 text-emerald-500" />
           Completed
         </Badge>
       )
@@ -253,7 +253,7 @@ function PaymentDetailDrawer({
                   </defs>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} hide />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                   <Area dataKey="amount" type="natural" fill="url(#fillAmount)" stroke="var(--color-amount)" strokeWidth={2} />
                 </AreaChart>
               </ChartContainer>
@@ -425,7 +425,7 @@ export function PaymentsDataTable({
       header: ({ table }) => (
         <div className="flex items-center justify-center">
           <Checkbox
-            checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+            checked={table.getIsAllPageRowsSelected()}
             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
             aria-label="Select all"
           />
@@ -515,7 +515,7 @@ export function PaymentsDataTable({
                 className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
                 size="icon"
               >
-                <DotsVerticalIcon className="size-4" />
+                <EllipsisVerticalIcon className="size-4" />
                 <span className="sr-only">Open menu</span>
               </Button>
             }
@@ -581,7 +581,7 @@ export function PaymentsDataTable({
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
         <Label htmlFor="view-selector" className="sr-only">View</Label>
-        <Select value={activeTab} onValueChange={setActiveTab}>
+        <Select value={activeTab} onValueChange={(value) => setActiveTab(value ?? "all")}>
           <SelectTrigger className="flex w-fit @4xl/main:hidden" size="sm" id="view-selector">
             <SelectValue placeholder="Select a view" />
           </SelectTrigger>
@@ -603,7 +603,7 @@ export function PaymentsDataTable({
             <DropdownMenuTrigger
               render={
                 <Button variant="outline" size="sm">
-                  <LayoutColumnsIcon className="size-4" />
+                  <Columns3Icon className="size-4" />
                   <span className="hidden lg:inline">Columns</span>
                   <ChevronDownIcon className="size-4" />
                 </Button>
