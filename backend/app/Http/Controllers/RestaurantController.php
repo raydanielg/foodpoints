@@ -25,6 +25,7 @@ class RestaurantController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'logo_url' => 'sometimes|nullable|string',
+            'cover_url' => 'sometimes|nullable|string',
             'address' => 'sometimes|nullable|string',
             'phone' => 'sometimes|nullable|string',
             'currency' => 'sometimes|string|max:10',
