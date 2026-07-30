@@ -58,6 +58,18 @@ class SnippeWebhookController extends Controller
             return response('OK', 200);
         }
 
+        // Handle subscription payments separately
+        if (($payment->payment_type ?? 'order') === 'subscription') {
+            if ($eventType === 'payment.completed' && $payment->status !== 'completed') {
+                $this->handleSubscriptionPaymentCompleted($payment);
+            } elseif ($eventType === 'payment.failed' && $payment->status === 'pending') {
+                $payment->update(['status' => 'failed']);
+                Log::info('Snippe webhook: subscription payment ' . $payment->id . ' failed');
+            }
+            return response('OK', 200);
+        }
+
+        // Handle regular order payments
         if ($eventType === 'payment.completed' && $payment->status !== 'completed') {
             $this->handlePaymentCompleted($payment);
         } elseif ($eventType === 'payment.failed' && $payment->status === 'pending') {
@@ -66,6 +78,33 @@ class SnippeWebhookController extends Controller
         }
 
         return response('OK', 200);
+    }
+
+    private function handleSubscriptionPaymentCompleted(Payment $payment): void
+    {
+        DB::beginTransaction();
+        try {
+            $payment->update(['status' => 'completed']);
+
+            $restaurant = Restaurant::find($payment->restaurant_id);
+            $plan = \App\Models\Plan::find($payment->plan_id);
+
+            if ($restaurant && $plan) {
+                $restaurant->update([
+                    'plan_id' => $plan->id,
+                    'subscription_status' => 'active',
+                    'subscription_expires_at' => $plan->duration_days > 0
+                        ? now()->addDays($plan->duration_days)
+                        : null,
+                ]);
+            }
+
+            DB::commit();
+            Log::info('Snippe webhook: subscription payment ' . $payment->id . ' completed — plan ' . ($plan->name ?? '?') . ' activated');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Snippe webhook: error completing subscription payment ' . $payment->id . ': ' . $e->getMessage());
+        }
     }
 
     private function handlePaymentCompleted(Payment $payment): void
