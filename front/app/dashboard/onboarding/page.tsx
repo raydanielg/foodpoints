@@ -14,7 +14,6 @@ import {
   FileTextIcon,
   MapPinIcon,
   CoinsIcon,
-  ImageIcon,
   LinkIcon,
   CopyIcon,
 } from "lucide-react"
@@ -121,7 +120,7 @@ export default function OnboardingPage() {
     })
   }, [])
 
-  const updateDetail = (field: keyof typeof details, value: string) => {
+  const updateDetail = (field: keyof typeof details, value: string | null) => {
     setDetails((prev) => ({ ...prev, [field]: value }))
   }
 

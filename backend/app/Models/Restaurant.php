@@ -19,6 +19,8 @@ class Restaurant extends Model
         'currency',
         'vat_percent',
         'subscription_status',
+        'plan_id',
+        'subscription_expires_at',
         'owner_name',
         'owner_phone',
         'owner_id_type',
@@ -37,7 +39,13 @@ class Restaurant extends Model
             'vat_percent' => 'decimal:2',
             'kyc_submitted_at' => 'datetime',
             'kyc_approved_at' => 'datetime',
+            'subscription_expires_at' => 'datetime',
         ];
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
     }
 
     public function users(): HasMany

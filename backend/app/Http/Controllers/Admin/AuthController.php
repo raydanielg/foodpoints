@@ -60,11 +60,15 @@ class AuthController extends Controller
             'total_users' => User::count(),
             'kyc_approved' => Restaurant::where('kyc_status', 'approved')->count(),
             'kyc_pending' => Restaurant::where('kyc_status', 'pending')->count(),
+            'active_subscriptions' => Restaurant::where('subscription_status', 'active')->whereNotNull('plan_id')->count(),
+            'expired' => Restaurant::where('subscription_expires_at', '<', now())->where('subscription_status', 'active')->count(),
+            'expiring_soon' => Restaurant::where('subscription_expires_at', '<=', now()->addDays(7))->where('subscription_expires_at', '>', now())->where('subscription_status', 'active')->count(),
         ];
 
-        $restaurants = Restaurant::orderBy('created_at', 'desc')->limit(20)->get();
-        $users = User::with('restaurant')->orderBy('created_at', 'desc')->limit(20)->get();
+        $restaurants = Restaurant::with(['plan', 'users' => function ($q) {
+            $q->where('role', 'owner')->limit(1);
+        }])->orderBy('created_at', 'desc')->limit(10)->get();
 
-        return view('admin.dashboard', compact('stats', 'restaurants', 'users'));
+        return view('admin.dashboard', compact('stats', 'restaurants'));
     }
 }
