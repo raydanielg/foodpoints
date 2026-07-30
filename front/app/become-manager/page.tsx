@@ -1,26 +1,32 @@
 import Link from "next/link"
 import Image from "next/image"
 import {
+  BadgeCheckIcon,
+  StoreIcon,
+  ShieldCheckIcon,
   QrCodeIcon,
   WalletIcon,
-  UtensilsCrossedIcon,
-  ChefHatIcon,
-  ClipboardListIcon,
   BarChart3Icon,
-  SmartphoneIcon,
-  MenuIcon,
-  CheckCircle2Icon,
+  ChefHatIcon,
   ArrowRightIcon,
+  CheckCircle2Icon,
+  ClipboardListIcon,
+  FileTextIcon,
+  MailIcon,
+  ClockIcon,
   StarIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
   Item,
+  ItemGroup,
   ItemContent,
   ItemDescription,
   ItemMedia,
   ItemTitle,
+  ItemActions,
+  ItemSeparator,
 } from "@/components/ui/item"
 import {
   Accordion,
@@ -29,118 +35,113 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
-const features = [
+const benefits = [
+  {
+    icon: StoreIcon,
+    title: "Own Your Restaurant",
+    desc: "Create and manage your restaurant profile. Upload your logo, cover image, and set up your brand identity.",
+  },
+  {
+    icon: BadgeCheckIcon,
+    title: "Get Verified",
+    desc: "Verified restaurants earn a trust badge that shows customers you're a legitimate, approved business.",
+  },
   {
     icon: QrCodeIcon,
     title: "QR Code Ordering",
-    desc: "Customers scan a QR code on their table to instantly view your menu and place orders — no app needed.",
+    desc: "Generate unique QR codes for each table. Customers scan and order instantly — no app needed.",
   },
   {
     icon: WalletIcon,
     title: "Split Payments",
-    desc: "Let customers split bills easily. Multiple payment methods supported with automatic VAT calculation.",
+    desc: "Let customers split bills easily. Automatic VAT calculation and multiple payment methods supported.",
   },
   {
     icon: ChefHatIcon,
     title: "Kitchen Display",
-    desc: "Real-time kitchen display system. Orders flow directly to the kitchen with prep time tracking.",
+    desc: "Real-time kitchen display system. Orders flow directly to your kitchen staff with prep time tracking.",
   },
   {
     icon: BarChart3Icon,
-    title: "Analytics Dashboard",
-    desc: "Track revenue, top sellers, order status, and daily performance with beautiful charts.",
-  },
-  {
-    icon: ClipboardListIcon,
-    title: "Menu Management",
-    desc: "Easily manage categories, items, prices, and availability. Upload photos for every dish.",
-  },
-  {
-    icon: SmartphoneIcon,
-    title: "Mobile First",
-    desc: "Optimized for mobile devices. Your customers order from their phones, your staff manages from anywhere.",
+    title: "Analytics & Insights",
+    desc: "Track revenue, top sellers, and daily performance with beautiful, easy-to-read charts.",
   },
 ]
 
-const steps = [
+const verificationSteps = [
   {
     num: "01",
-    title: "Set Up Your Restaurant",
-    desc: "Create your account, add your restaurant details, upload your logo and menu items with photos.",
+    icon: ClipboardListIcon,
+    title: "Create Your Account",
+    desc: "Sign up with your email and fill in your restaurant details including name, address, and phone number.",
   },
   {
     num: "02",
-    title: "Generate QR Codes",
-    desc: "Print QR codes for each table. Customers scan to view your menu and place orders instantly.",
+    icon: FileTextIcon,
+    title: "Submit Documents",
+    desc: "Upload your business license and any required permits. Our team reviews them within 24-48 hours.",
   },
   {
     num: "03",
-    title: "Manage Orders in Real-Time",
-    desc: "Orders flow to your kitchen display. Track preparation, serve customers, and process payments.",
+    icon: ShieldCheckIcon,
+    title: "Get Reviewed",
+    desc: "Our verification team checks your documents and restaurant information to ensure everything is legitimate.",
+  },
+  {
+    num: "04",
+    icon: BadgeCheckIcon,
+    title: "Receive Verification",
+    desc: "Once approved, you'll receive a verified badge on your profile. Customers can trust your restaurant.",
   },
 ]
 
-const menuItems = [
+const requirements = [
   {
-    name: "Gourmet Burgers",
-    desc: "Juicy, flame-grilled burgers with fresh ingredients",
-    image: "/images/56.jpg",
-    price: "From 12,000 TZS",
+    title: "Business License",
+    desc: "A valid restaurant or food service business license from your local authority.",
   },
   {
-    name: "Fine Dining",
-    desc: "Elegant dishes prepared by expert chefs",
-    image: "/images/58 (1).jpg",
-    price: "From 25,000 TZS",
+    title: "Food Safety Certificate",
+    desc: "Current food handling and safety certification for your establishment.",
   },
   {
-    name: "Restaurant Ambiance",
-    desc: "Beautiful dining spaces for every occasion",
-    image: "/images/3394.jpg",
-    price: "Reserve a table",
+    title: "Valid ID",
+    desc: "Government-issued identification of the restaurant owner or authorized manager.",
   },
   {
-    name: "Signature Dishes",
-    desc: "Chef's special creations with local flavors",
-    image: "/images/6342.jpg",
-    price: "From 18,000 TZS",
-  },
-  {
-    name: "Premium Experience",
-    desc: "Top-tier service and culinary excellence",
-    image: "/images/19743.jpg",
-    price: "From 30,000 TZS",
+    title: "Restaurant Photos",
+    desc: "Clear photos of your restaurant interior, exterior, and sample menu items.",
   },
 ]
 
 const faqs = [
   {
-    q: "How does FoodPoint work?",
-    a: "FoodPoint is a complete restaurant management platform. You set up your menu, generate QR codes for tables, and customers scan to order. Orders go straight to your kitchen display, and you track everything from your dashboard.",
+    q: "How long does verification take?",
+    a: "Verification typically takes 24-48 hours after you submit all required documents. You'll receive an email notification once your restaurant is approved.",
   },
   {
-    q: "Do customers need to download an app?",
-    a: "No. Customers simply scan the QR code on their table with their phone camera. The menu opens in their browser — no app or registration required.",
+    q: "What if my verification is rejected?",
+    a: "If your verification is rejected, we'll email you with the reason. You can fix the issues and resubmit your application at any time at no cost.",
   },
   {
-    q: "Can I customize my menu with photos?",
-    a: "Yes! You can upload photos for every menu item, organize items into categories, set prices, and mark items as available or out of stock — all from your dashboard.",
+    q: "Do I need to pay for verification?",
+    a: "No. Verification is completely free for all FoodPoint restaurant managers. There are no hidden fees or charges.",
   },
   {
-    q: "Does it support split payments?",
-    a: "Absolutely. Customers can split bills among multiple people. The system automatically calculates VAT and handles multiple payment methods.",
+    q: "Can I start using FoodPoint before verification?",
+    a: "Yes! You can set up your menu, generate QR codes, and start accepting orders immediately. The verified badge is added once your documents are approved.",
   },
   {
-    q: "Is there a kitchen display system?",
-    a: "Yes. Orders are sent to a real-time kitchen display where your kitchen staff can track preparation status, prep times, and order priorities.",
+    q: "What does the verified badge do?",
+    a: "The verified badge appears on your restaurant profile, customer-facing menu page, and receipts. It builds trust with customers and shows you're a legitimate business.",
   },
   {
-    q: "What devices does it work on?",
-    a: "FoodPoint works on any device with a browser. The customer ordering page is optimized for mobile phones, and the management dashboard works on both desktop and tablet.",
+    q: "How do I maintain my verified status?",
+    a: "Keep your documents up to date. If your business license or food safety certificate expires, you'll need to upload renewed versions to maintain your verified badge.",
   },
 ]
 
-export default function Home() {
+export default function BecomeManagerPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* ===== Header ===== */}
@@ -157,17 +158,7 @@ export default function Home() {
             />
             <span className="text-xl font-bold tracking-tight">FoodPoint</span>
           </Link>
-
-          {/* Desktop nav */}
-          <nav className="hidden items-center gap-8 md:flex">
-            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
-            <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">How it Works</a>
-            <a href="#menu" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Menu</a>
-            <Link href="/become-manager" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Become a Manager</Link>
-            <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
-          </nav>
-
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="flex items-center gap-3">
             <Link href="/login">
               <Button variant="ghost" size="sm">Sign In</Button>
             </Link>
@@ -175,113 +166,77 @@ export default function Home() {
               <Button size="sm">Get Started</Button>
             </Link>
           </div>
-
-          {/* Mobile menu button */}
-          <details className="relative md:hidden">
-            <summary className="flex size-10 cursor-pointer list-none items-center justify-center rounded-lg border">
-              <MenuIcon className="size-5" />
-            </summary>
-            <div className="absolute right-0 top-12 w-56 rounded-xl border bg-background p-4 shadow-lg">
-              <nav className="flex flex-col gap-3">
-                <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground">Features</a>
-                <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground">How it Works</a>
-                <a href="#menu" className="text-sm font-medium text-muted-foreground hover:text-foreground">Menu</a>
-                <Link href="/become-manager" className="text-sm font-medium text-muted-foreground hover:text-foreground">Become a Manager</Link>
-                <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground">FAQ</a>
-                <div className="flex flex-col gap-2 pt-2">
-                  <Link href="/login">
-                    <Button variant="outline" size="sm" className="w-full">Sign In</Button>
-                  </Link>
-                  <Link href="/login">
-                    <Button size="sm" className="w-full">Get Started</Button>
-                  </Link>
-                </div>
-              </nav>
-            </div>
-          </details>
         </div>
       </header>
 
       {/* ===== Hero ===== */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-12 px-4 py-16 lg:px-8 lg:py-24">
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-16 lg:px-8 lg:py-24">
           <div className="flex flex-col items-center text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-background/50 px-4 py-1.5 text-sm backdrop-blur">
-              <span className="flex size-2 rounded-full bg-primary" />
-              <span className="font-medium text-muted-foreground">All-in-one restaurant platform</span>
+              <BadgeCheckIcon className="size-4 text-primary" />
+              <span className="font-medium text-muted-foreground">Restaurant Manager Program</span>
             </div>
             <h1 className="mb-6 max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Run your restaurant{" "}
-              <span className="text-primary">smarter</span> with FoodPoint
+              Become a manager.{" "}
+              <span className="text-primary">Own</span> your restaurant.{" "}
+              <span className="text-primary">Get verified</span>.
             </h1>
-            <p className="mb-8 max-w-xl text-lg text-muted-foreground">
-              QR-based ordering, split payments, kitchen display, and powerful
-              management dashboards — everything you need in one platform.
+            <p className="mb-8 max-w-2xl text-lg text-muted-foreground">
+              Join FoodPoint as a restaurant manager. Set up your menu, generate
+              QR codes for your tables, and get verified to build trust with
+              your customers.
             </p>
             <div className="flex flex-row gap-3">
               <Link href="/login">
                 <Button size="lg" className="flex-1 sm:flex-none">
-                  Get Started Free
+                  Get Started
                   <ArrowRightIcon className="ml-2 size-4" />
                 </Button>
               </Link>
-              <a href="#how-it-works">
+              <a href="#verification">
                 <Button variant="outline" size="lg" className="flex-1 sm:flex-none">
-                  See How it Works
+                  How to Get Verified
                 </Button>
               </a>
             </div>
 
-            {/* Trust badges */}
             <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2Icon className="size-4 text-primary" />
-                No app required
+                Free to join
               </span>
               <span className="flex items-center gap-1.5">
                 <CheckCircle2Icon className="size-4 text-primary" />
-                Works on any phone
+                Verified in 48 hours
               </span>
               <span className="flex items-center gap-1.5">
                 <CheckCircle2Icon className="size-4 text-primary" />
-                Setup in minutes
+                No hidden fees
               </span>
             </div>
-          </div>
-
-          {/* Hero image */}
-          <div className="relative w-full max-w-4xl overflow-hidden rounded-2xl border shadow-2xl">
-            <Image
-              src="/images/3394.jpg"
-              alt="Restaurant dining experience"
-              width={1200}
-              height={600}
-              className="w-full object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           </div>
         </div>
       </section>
 
-      {/* ===== Features ===== */}
-      <section id="features" className="border-t py-16 lg:py-24">
+      {/* ===== Benefits ===== */}
+      <section id="benefits" className="border-t py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="mb-12 text-center">
             <h2 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              Everything you need to run your restaurant
+              Everything you get as a manager
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-              From ordering to kitchen to payments — FoodPoint handles it all
-              with a beautiful, easy-to-use interface.
+              Powerful tools to run your restaurant efficiently and give your
+              customers a seamless ordering experience.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
+            {benefits.map((benefit) => (
               <Item
-                key={feature.title}
+                key={benefit.title}
                 variant="outline"
                 className="group flex-col items-start gap-3 p-5 transition-all hover:border-primary/50 hover:shadow-md"
               >
@@ -289,11 +244,11 @@ export default function Home() {
                   variant="icon"
                   className="size-11 rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
                 >
-                  <feature.icon className="size-5" />
+                  <benefit.icon className="size-5" />
                 </ItemMedia>
                 <ItemContent className="gap-1.5">
-                  <ItemTitle className="text-base font-semibold">{feature.title}</ItemTitle>
-                  <ItemDescription className="text-sm leading-relaxed">{feature.desc}</ItemDescription>
+                  <ItemTitle className="text-base font-semibold">{benefit.title}</ItemTitle>
+                  <ItemDescription className="text-sm leading-relaxed">{benefit.desc}</ItemDescription>
                 </ItemContent>
               </Item>
             ))}
@@ -301,15 +256,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== How it Works ===== */}
-      <section id="how-it-works" className="border-t bg-muted/30 py-16 lg:py-24">
+      {/* ===== Verification Steps ===== */}
+      <section id="verification" className="border-t bg-muted/30 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="mb-12 text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+              <ShieldCheckIcon className="size-4" />
+              Verification Process
+            </div>
             <h2 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              How it works
+              How to get verified
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-              Get your restaurant online in three simple steps.
+              Four simple steps to earn your verified badge and build trust with
+              customers.
             </p>
           </div>
 
@@ -318,7 +278,7 @@ export default function Home() {
             <div className="absolute left-5 top-8 h-[calc(100%-4rem)] w-0.5 bg-border md:left-1/2 md:-translate-x-1/2" />
 
             <div className="flex flex-col gap-8">
-              {steps.map((step, i) => (
+              {verificationSteps.map((step, i) => (
                 <div
                   key={step.num}
                   className={`relative flex items-start gap-6 md:items-center ${i % 2 === 1 ? "md:flex-row-reverse" : ""}`}
@@ -334,6 +294,12 @@ export default function Home() {
                       variant="outline"
                       className={`flex-col items-start gap-2 p-4 ${i % 2 === 1 ? "md:items-end" : ""}`}
                     >
+                      <ItemMedia
+                        variant="icon"
+                        className={`size-9 rounded-lg bg-primary/10 text-primary ${i % 2 === 1 ? "md:flex-row-reverse" : ""}`}
+                      >
+                        <step.icon className="size-4" />
+                      </ItemMedia>
                       <ItemContent className="gap-1.5">
                         <ItemTitle className="text-base font-semibold">{step.title}</ItemTitle>
                         <ItemDescription className="text-sm leading-relaxed">{step.desc}</ItemDescription>
@@ -347,102 +313,105 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== Menu Showcase ===== */}
-      <section id="menu" className="border-t py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+      {/* ===== Requirements ===== */}
+      <section id="requirements" className="border-t py-16 lg:py-24">
+        <div className="mx-auto max-w-3xl px-4 lg:px-8">
           <div className="mb-12 text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+              <FileTextIcon className="size-4" />
+              What You Need
+            </div>
             <h2 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              Showcase your menu beautifully
+              Verification requirements
             </h2>
-            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-              Upload photos for every dish. Customers see what they're ordering,
-              leading to more orders and less confusion.
+            <p className="text-lg text-muted-foreground">
+              Prepare these documents to get verified quickly.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {menuItems.map((item) => (
-              <div
-                key={item.name}
-                className="group overflow-hidden rounded-2xl border transition-all hover:shadow-xl"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    width={400}
-                    height={300}
-                    className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                    <p className="text-sm font-medium text-white/90">{item.price}</p>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="mb-1 text-lg font-semibold">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground">{item.desc}</p>
-                </div>
+          <ItemGroup>
+            {requirements.map((req, i) => (
+              <div key={req.title}>
+                <Item variant="outline" className="p-4">
+                  <ItemMedia
+                    variant="icon"
+                    className="size-10 rounded-lg bg-primary/10 text-primary"
+                  >
+                    <CheckCircle2Icon className="size-5" />
+                  </ItemMedia>
+                  <ItemContent className="gap-1">
+                    <ItemTitle className="text-sm font-semibold">{req.title}</ItemTitle>
+                    <ItemDescription className="text-sm">{req.desc}</ItemDescription>
+                  </ItemContent>
+                </Item>
+                {i < requirements.length - 1 && <ItemSeparator className="my-0" />}
               </div>
             ))}
+          </ItemGroup>
+
+          <div className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <ClockIcon className="size-4 text-primary" />
+            <span>Average review time: 24-48 hours</span>
           </div>
         </div>
       </section>
 
-      {/* ===== Mobile Banner ===== */}
+      {/* ===== Verified Badge Highlight ===== */}
       <section className="border-t bg-gradient-to-br from-primary to-primary/80 py-16 lg:py-24">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-10 px-4 lg:px-8 lg:flex-row">
           <div className="flex-1 text-center lg:text-left">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">
-              <SmartphoneIcon className="size-4" />
-              Mobile ordering
+              <BadgeCheckIcon className="size-4" />
+              Trust Badge
             </div>
             <h2 className="mb-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Your customers order from their phones
+              The verified badge builds customer trust
             </h2>
             <p className="mb-8 max-w-lg text-lg text-white/80">
-              No app downloads. No registrations. Customers just scan the QR code
-              on their table and your menu appears instantly on their phone.
+              When customers see the verified badge on your restaurant profile,
+              they know you're a legitimate, approved business. This leads to
+              more orders, better reviews, and repeat customers.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
               <div className="flex items-center gap-3 text-white">
                 <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur">
-                  <QrCodeIcon className="size-5" />
+                  <StarIcon className="size-5" />
                 </div>
                 <div>
-                  <p className="font-semibold">Scan QR Code</p>
-                  <p className="text-sm text-white/70">On the table</p>
+                  <p className="font-semibold">More Orders</p>
+                  <p className="text-sm text-white/70">Trust drives sales</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 text-white">
                 <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur">
-                  <UtensilsCrossedIcon className="size-5" />
+                  <ShieldCheckIcon className="size-5" />
                 </div>
                 <div>
-                  <p className="font-semibold">Browse Menu</p>
-                  <p className="text-sm text-white/70">With photos</p>
+                  <p className="font-semibold">Customer Confidence</p>
+                  <p className="text-sm text-white/70">Verified = trusted</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 text-white">
                 <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur">
-                  <WalletIcon className="size-5" />
+                  <MailIcon className="size-5" />
                 </div>
                 <div>
-                  <p className="font-semibold">Pay Easily</p>
-                  <p className="text-sm text-white/70">Split or single</p>
+                  <p className="font-semibold">Email Notification</p>
+                  <p className="text-sm text-white/70">Instant approval alert</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="relative w-full max-w-sm">
-            <div className="overflow-hidden rounded-3xl border-4 border-white/20 shadow-2xl">
-              <Image
-                src="/images/6342.jpg"
-                alt="Mobile ordering experience"
-                width={400}
-                height={600}
-                className="w-full object-cover"
-              />
+          <div className="flex w-full max-w-sm flex-col items-center gap-6">
+            <div className="flex size-32 items-center justify-center rounded-3xl bg-white/10 backdrop-blur">
+              <BadgeCheckIcon className="size-16 text-white" />
+            </div>
+            <div className="rounded-2xl bg-white/10 p-6 text-center backdrop-blur">
+              <p className="text-lg font-bold text-white">Verified Restaurant</p>
+              <p className="mt-1 text-sm text-white/70">
+                This badge appears on your profile, menu page, and receipts.
+              </p>
             </div>
           </div>
         </div>
@@ -456,7 +425,7 @@ export default function Home() {
               Frequently asked questions
             </h2>
             <p className="text-lg text-muted-foreground">
-              Everything you need to know about FoodPoint.
+              Everything you need to know about becoming a verified restaurant manager.
             </p>
           </div>
 
@@ -488,21 +457,22 @@ export default function Home() {
             />
           </div>
           <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Ready to transform your restaurant?
+            Ready to become a restaurant manager?
           </h2>
           <p className="mb-8 text-lg text-muted-foreground">
-            Join FoodPoint today and give your customers a modern ordering experience.
+            Create your account today, set up your restaurant, and start the
+            verification process. It's free and takes just minutes.
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <div className="flex flex-row gap-3 sm:justify-center">
             <Link href="/login">
-              <Button size="lg">
+              <Button size="lg" className="flex-1 sm:flex-none">
                 Get Started
                 <ArrowRightIcon className="ml-2 size-4" />
               </Button>
             </Link>
-            <Link href="/login">
-              <Button variant="outline" size="lg">
-                Sign In
+            <Link href="/">
+              <Button variant="outline" size="lg" className="flex-1 sm:flex-none">
+                Back to Home
               </Button>
             </Link>
           </div>
@@ -531,11 +501,11 @@ export default function Home() {
             </div>
 
             <div>
-              <p className="mb-3 text-sm font-semibold">Product</p>
+              <p className="mb-3 text-sm font-semibold">Program</p>
               <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
-                <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
-                <li><a href="#how-it-works" className="hover:text-foreground transition-colors">How it Works</a></li>
-                <li><a href="#menu" className="hover:text-foreground transition-colors">Menu Showcase</a></li>
+                <li><a href="#benefits" className="hover:text-foreground transition-colors">Benefits</a></li>
+                <li><a href="#verification" className="hover:text-foreground transition-colors">Verification</a></li>
+                <li><a href="#requirements" className="hover:text-foreground transition-colors">Requirements</a></li>
                 <li><a href="#faq" className="hover:text-foreground transition-colors">FAQ</a></li>
               </ul>
             </div>
@@ -545,7 +515,7 @@ export default function Home() {
               <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
                 <li><Link href="/login" className="hover:text-foreground transition-colors">Sign In</Link></li>
                 <li><Link href="/login" className="hover:text-foreground transition-colors">Create Account</Link></li>
-                <li><a href="#features" className="hover:text-foreground transition-colors">Learn More</a></li>
+                <li><Link href="/" className="hover:text-foreground transition-colors">Home</Link></li>
               </ul>
             </div>
           </div>
