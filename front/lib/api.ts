@@ -210,6 +210,17 @@ export interface PayoutSettings {
   payout_recipient_name: string | null
 }
 
+export interface Plan {
+  id: number
+  name: string
+  description: string | null
+  price: string
+  duration_days: number
+  currency: string
+  features: string[] | null
+  is_active: boolean
+}
+
 export interface ApiError {
   message: string
   errors?: Record<string, string[]>
