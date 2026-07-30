@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { HeroVideo } from "@/components/hero-video"
 import {
   Item,
   ItemContent,
@@ -232,36 +233,28 @@ export default function Home() {
                 </Button>
               </a>
             </div>
-
-            {/* Trust badges */}
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2Icon className="size-4 text-primary" />
-                No app required
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2Icon className="size-4 text-primary" />
-                Works on any phone
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2Icon className="size-4 text-primary" />
-                Setup in minutes
-              </span>
-            </div>
           </div>
 
-          {/* Hero image */}
-          <div className="relative w-full max-w-4xl overflow-hidden rounded-2xl border shadow-2xl">
-            <Image
-              src="/images/3394.jpg"
-              alt="Restaurant dining experience"
-              width={1200}
-              height={600}
-              className="w-full object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-          </div>
+          {/* Hero video */}
+          <HeroVideo />
+        </div>
+      </section>
+
+      {/* ===== Trust badges ===== */}
+      <section className="border-t bg-muted/30 py-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4 text-sm text-muted-foreground lg:px-8">
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2Icon className="size-4 text-primary" />
+            No app required
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2Icon className="size-4 text-primary" />
+            Works on any phone
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2Icon className="size-4 text-primary" />
+            Setup in minutes
+          </span>
         </div>
       </section>
 
