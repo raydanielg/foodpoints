@@ -79,17 +79,17 @@ export default function WithdrawalsPage() {
   const handleWithdraw = async () => {
     const amt = parseFloat(amount)
     if (!amt || amt < 1000) {
-      toast({ title: "Invalid amount", description: "Minimum withdrawal is 1,000 TZS", variant: "error" })
+      toast.add({ title: "Invalid amount", description: "Minimum withdrawal is 1,000 TZS", type: "error" })
       return
     }
 
     if (revenue && amt > parseFloat(revenue.available_balance)) {
-      toast({ title: "Insufficient balance", description: `Your available balance is ${formatCurrency(revenue.available_balance)} TZS`, variant: "error" })
+      toast.add({ title: "Insufficient balance", description: `Your available balance is ${formatCurrency(revenue.available_balance)} TZS`, type: "error" })
       return
     }
 
     if (!payout?.payout_recipient_name) {
-      toast({ title: "Payout settings required", description: "Please configure your payout settings first.", variant: "error" })
+      toast.add({ title: "Payout settings required", description: "Please configure your payout settings first.", type: "error" })
       router.push("/dashboard/payout-settings")
       return
     }
@@ -97,12 +97,12 @@ export default function WithdrawalsPage() {
     setSubmitting(true)
     try {
       const res = await api.requestWithdrawal({ amount: amt })
-      toast({ title: "Withdrawal initiated", description: res.message, variant: "success" })
+      toast.add({ title: "Withdrawal initiated", description: res.message, type: "success" })
       setDialogOpen(false)
       setAmount("")
       load()
     } catch (err: any) {
-      toast({ title: "Withdrawal failed", description: err?.message || "Something went wrong", variant: "error" })
+      toast.add({ title: "Withdrawal failed", description: err?.message || "Something went wrong", type: "error" })
     } finally {
       setSubmitting(false)
     }
