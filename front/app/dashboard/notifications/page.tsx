@@ -238,7 +238,7 @@ export default function NotificationsPage() {
       </Card>
 
       {/* Recent notifications */}
-      <Card className="max-w-2xl">
+      <Card className="rounded-xl">
         <CardHeader>
           <CardTitle>Recent Notifications</CardTitle>
           <CardDescription>Your latest activity alerts</CardDescription>

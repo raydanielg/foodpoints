@@ -118,7 +118,7 @@ export default function KycPage() {
 
       {/* Status banner */}
       {isApproved ? (
-        <Card className="max-w-2xl border-green-600/50 bg-green-50/50">
+        <Card className="rounded-xl border-green-600/50 bg-green-50/50">
           <CardContent className="flex items-center gap-4 p-5">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-green-600">
               <CheckCircle2Icon className="size-6 text-white" />
@@ -132,7 +132,7 @@ export default function KycPage() {
           </CardContent>
         </Card>
       ) : (
-        <Card className="max-w-2xl border-amber-600/50 bg-amber-50/50">
+        <Card className="rounded-xl border-amber-600/50 bg-amber-50/50">
           <CardContent className="flex items-center gap-4 p-5">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-amber-600">
               <ShieldCheckIcon className="size-6 text-white" />
@@ -149,7 +149,7 @@ export default function KycPage() {
 
       {/* Restaurant link */}
       {isApproved && restaurant?.restaurant_link && (
-        <Card className="max-w-2xl">
+        <Card className="rounded-xl">
           <CardHeader>
             <CardTitle className="text-base">Your Restaurant Link</CardTitle>
             <CardDescription>
@@ -181,7 +181,7 @@ export default function KycPage() {
       )}
 
       {/* KYC Form */}
-      <Card className="max-w-2xl">
+      <Card className="rounded-xl">
         <CardHeader>
           <CardTitle>Business Details</CardTitle>
           <CardDescription>
