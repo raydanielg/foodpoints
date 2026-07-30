@@ -1,136 +1,127 @@
 @extends('admin.layout')
-@section('title', 'Dashboard')
+
+@section('title', 'Dashboard — FoodPoint Admin')
+@section('page_title', 'Dashboard Overview')
 
 @section('content')
-    <div class="page-header">
-        <div>
-            <h1>Dashboard</h1>
-            <p>Overview of all restaurants, plans, and subscriptions</p>
+@php
+$fmt = fn($n) => $n >= 1000000000 ? number_format($n/1000000000,2).'B' : ($n >= 1000000 ? number_format($n/1000000,2).'M' : ($n >= 1000 ? number_format($n/1000,1).'K' : number_format($n)));
+@endphp
+
+{{-- Stats Cards --}}
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+    @foreach([
+        ['label'=>'Total Restaurants','value'=>number_format($stats['total_restaurants']),'change'=>'Registered on platform','icon'=>'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4','from'=>'emerald-600','to'=>'emerald-700','border'=>'emerald-500','text'=>'emerald-100','sub'=>'emerald-200'],
+        ['label'=>'Total Users','value'=>number_format($stats['total_users']),'change'=>'All system users','icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z','from'=>'amber-400','to'=>'amber-500','border'=>'amber-300','text'=>'amber-50','sub'=>'amber-100'],
+        ['label'=>'KYC Approved','value'=>number_format($stats['kyc_approved']),'change'=>($stats['kyc_pending'] ?? 0).' pending','icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z','from'=>'sky-500','to'=>'sky-600','border'=>'sky-400','text'=>'sky-100','sub'=>'sky-200'],
+        ['label'=>'Active Subscriptions','value'=>number_format($stats['active_subscriptions']),'change'=>($stats['expired'] ?? 0).' expired','icon'=>'M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z','from'=>'violet-500','to'=>'violet-600','border'=>'violet-400','text'=>'violet-100','sub'=>'violet-200']
+    ] as $card)
+    <div class="bg-gradient-to-br from-{{ $card['from'] }} to-{{ $card['to'] }} rounded-xl border border-{{ $card['border'] }} p-4 text-white relative overflow-hidden hover:shadow-lg transition-shadow">
+        <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8"></div>
+        <div class="relative z-10">
+            <div class="flex items-start justify-between mb-2">
+                <span class="text-[10px] font-medium {{ $card['text'] }}">{{ $card['label'] }}</span>
+                <svg class="w-4 h-4 {{ $card['sub'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/></svg>
+            </div>
+            <p class="text-xl font-bold tracking-tight text-white">{{ $card['value'] }}</p>
+            <p class="text-[10px] {{ $card['sub'] }} font-medium mt-1">{{ $card['change'] }}</p>
         </div>
     </div>
+    @endforeach
+</div>
 
-    {{-- Stats --}}
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon green">
-                <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
-            </div>
-            <div class="stat-value">{{ $stats['total_restaurants'] }}</div>
-            <div class="stat-label">Total Restaurants</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon blue">
-                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-            </div>
-            <div class="stat-value">{{ $stats['total_users'] }}</div>
-            <div class="stat-label">Total Users</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon purple">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-            </div>
-            <div class="stat-value">{{ $stats['kyc_approved'] }}</div>
-            <div class="stat-label">KYC Approved</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon amber">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-            </div>
-            <div class="stat-value">{{ $stats['kyc_pending'] }}</div>
-            <div class="stat-label">KYC Pending</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon red">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
-            </div>
-            <div class="stat-value">{{ $stats['expired'] }}</div>
-            <div class="stat-label">Expired Subscriptions</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon green">
-                <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-            </div>
-            <div class="stat-value">{{ $stats['active_subscriptions'] }}</div>
-            <div class="stat-label">Active Subscriptions</div>
-        </div>
+{{-- Subscription Alerts --}}
+@if (($stats['expiring_soon'] ?? 0) > 0)
+<div class="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <svg class="mt-0.5 h-5 w-5 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    <div>
+        <p class="font-semibold">{{ $stats['expiring_soon'] }} subscription(s) expiring within 7 days</p>
+        <p class="text-xs mt-0.5">Contact these restaurants to arrange payment before expiry.</p>
     </div>
+</div>
+@endif
+@if (($stats['expired'] ?? 0) > 0)
+<div class="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+    <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <div>
+        <p class="font-semibold">{{ $stats['expired'] }} subscription(s) have expired</p>
+        <p class="text-xs mt-0.5">These restaurants need payment to continue using the platform.</p>
+    </div>
+</div>
+@endif
 
-    {{-- Expiring soon alert --}}
-    @if ($stats['expiring_soon'] > 0)
-        <div class="alert-box alert-warning">
-            <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
-            <div>
-                <h4>{{ $stats['expiring_soon'] }} subscription(s) expiring within 7 days</h4>
-                <p><a href="{{ route('admin.subscriptions.index') }}" style="color: #92400e; font-weight: 600;">View subscriptions →</a></p>
-            </div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    {{-- Recent Restaurants --}}
+    <div class="bg-white rounded-xl border overflow-hidden">
+        <div class="px-5 py-4 border-b flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-gray-900">Recent Restaurants</h3>
+            <a href="{{ route('admin.restaurants.index') }}" class="text-xs font-medium text-emerald-600 hover:text-emerald-700">View All</a>
         </div>
-    @endif
-
-    {{-- Expired alert --}}
-    @if ($stats['expired'] > 0)
-        <div class="alert-box alert-danger">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
-            <div>
-                <h4>{{ $stats['expired'] }} subscription(s) have expired</h4>
-                <p>These restaurants need to pay to continue using the platform. <a href="{{ route('admin.subscriptions.index') }}" style="color: #991b1b; font-weight: 600;">View →</a></p>
-            </div>
-        </div>
-    @endif
-
-    {{-- Recent restaurants --}}
-    <div class="card">
-        <div class="card-header">
-            <div>
-                <h3>Recent Restaurants</h3>
-                <p>Latest registered restaurants</p>
-            </div>
-            <a href="{{ route('admin.restaurants.index') }}" class="btn btn-outline btn-sm">View All</a>
-        </div>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Plan</th>
-                        <th>Subscription</th>
-                        <th>KYC</th>
-                        <th>Joined</th>
-                    </tr>
-                </thead>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead><tr class="text-left text-xs text-gray-500 bg-gray-50/50">
+                    <th class="px-5 py-2.5 font-medium">Restaurant</th>
+                    <th class="px-5 py-2.5 font-medium">Phone</th>
+                    <th class="px-5 py-2.5 font-medium">Plan</th>
+                    <th class="px-5 py-2.5 font-medium">Status</th>
+                </tr></thead>
                 <tbody>
                     @forelse ($restaurants as $restaurant)
-                        <tr>
-                            <td><a href="{{ route('admin.restaurants.show', $restaurant) }}" style="color: #1a8a4a; font-weight: 600;">{{ $restaurant->name }}</a></td>
-                            <td>{{ $restaurant->users->first()?->email ?: '—' }}</td>
-                            <td>{{ $restaurant->owner_phone ?: $restaurant->phone ?: '—' }}</td>
-                            <td>{{ $restaurant->plan?->name ?: '—' }}</td>
-                            <td>
-                                @if ($restaurant->subscription_expires_at)
-                                    @if ($restaurant->subscription_expires_at->isPast())
-                                        <span class="badge badge-red">Expired</span>
-                                    @elseif ($restaurant->subscription_expires_at->lte(now()->addDays(7)))
-                                        <span class="badge badge-amber">Expires {{ $restaurant->subscription_expires_at->diffForHumans() }}</span>
-                                    @else
-                                        <span class="badge badge-green">Active</span>
-                                    @endif
-                                @else
-                                    <span class="badge badge-gray">No plan</span>
-                                @endif
-                            </td>
-                            <td>
-                                <span class="badge badge-{{ $restaurant->kyc_status === 'approved' ? 'green' : ($restaurant->kyc_status === 'pending' ? 'amber' : 'red') }}">
-                                    {{ ucfirst($restaurant->kyc_status) }}
-                                </span>
-                            </td>
-                            <td>{{ $restaurant->created_at?->format('M d, Y') }}</td>
-                        </tr>
+                    <tr class="border-t border-gray-100 hover:bg-gray-50/50 transition-colors">
+                        <td class="px-5 py-2.5">
+                            <a href="{{ route('admin.restaurants.show', $restaurant) }}" class="text-xs font-medium text-gray-900 hover:text-emerald-600">{{ $restaurant->name }}</a>
+                        </td>
+                        <td class="px-5 py-2.5 text-xs text-gray-500">{{ $restaurant->users->first()?->phone ?: '—' }}</td>
+                        <td class="px-5 py-2.5 text-xs text-gray-700">{{ $restaurant->plan?->name ?: 'No Plan' }}</td>
+                        <td class="px-5 py-2.5">
+                            @if ($restaurant->subscription_expires_at && $restaurant->subscription_expires_at->isPast())
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-50 text-red-700 border border-red-100">Expired</span>
+                            @elseif ($restaurant->subscription_expires_at && $restaurant->subscription_expires_at->lte(now()->addDays(7)))
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-100">Expiring</span>
+                            @elseif ($restaurant->subscription_status === 'active')
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">Active</span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-50 text-gray-700 border border-gray-100">{{ ucfirst($restaurant->subscription_status) }}</span>
+                            @endif
+                        </td>
+                    </tr>
                     @empty
-                        <tr><td colspan="7" class="empty">No restaurants found</td></tr>
+                    <tr><td colspan="4" class="px-5 py-8 text-center text-gray-400 text-xs">No restaurants yet</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+
+    {{-- Quick Actions --}}
+    <div class="bg-white rounded-xl border p-5">
+        <h3 class="text-sm font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-2 gap-3">
+            <a href="{{ route('admin.plans.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                </div>
+                <span class="text-xs font-medium text-gray-700">New Plan</span>
+            </a>
+            <a href="{{ route('admin.restaurants.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                <div class="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Restaurants</span>
+            </a>
+            <a href="{{ route('admin.plans.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                <div class="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                </div>
+                <span class="text-xs font-medium text-gray-700">View Plans</span>
+            </a>
+            <a href="{{ route('admin.subscriptions.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Subscriptions</span>
+            </a>
+        </div>
+    </div>
+</div>
 @endsection

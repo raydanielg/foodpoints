@@ -1,7 +1,15 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
+
+// Public restaurant pages (customer-facing)
+Route::get('/r/{slug}', [PublicController::class, 'restaurantPage'])->name('public.restaurant');
+Route::get('/scan/{qrToken}', [PublicController::class, 'scanQr'])->name('public.scan');
+Route::post('/public/order', [PublicController::class, 'placeOrder'])->name('public.order');
+Route::post('/public/payment', [PublicController::class, 'processPayment'])->name('public.payment');
+Route::get('/public/session/{sessionId}', [PublicController::class, 'sessionStatus'])->name('public.session');
 
 // Redirect root to admin login
 Route::get('/', function () {

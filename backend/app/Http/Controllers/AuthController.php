@@ -66,7 +66,8 @@ class AuthController extends Controller
             $restaurant = Restaurant::create([
                 'name' => $validated['restaurant_name'],
                 'subscription_status' => 'active',
-                'kyc_status' => 'pending',
+                'kyc_status' => 'approved',
+                'kyc_approved_at' => now(),
                 'restaurant_link' => $slug,
             ]);
 

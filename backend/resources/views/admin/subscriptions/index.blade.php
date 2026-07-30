@@ -1,81 +1,75 @@
 @extends('admin.layout')
-@section('title', 'Subscriptions')
+
+@section('title', 'Subscriptions — FoodPoint Admin')
+@section('page_title', 'Subscriptions')
 
 @section('content')
-    <div class="page-header">
-        <div>
-            <h1>Subscriptions</h1>
-            <p>Track and manage restaurant subscription payments</p>
-        </div>
+<div class="mb-6">
+    <h2 class="text-xl font-bold text-gray-900">Subscriptions</h2>
+    <p class="text-sm text-gray-400">Track and manage restaurant subscription payments</p>
+</div>
+
+{{-- Expiring soon --}}
+@if ($expiringSoon->count() > 0)
+<div class="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <svg class="mt-0.5 h-5 w-5 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    <div>
+        <p class="font-semibold">{{ $expiringSoon->count() }} subscription(s) expiring within 7 days</p>
+        <p class="text-xs mt-0.5">Contact these restaurants to arrange payment before expiry.</p>
     </div>
+</div>
+@endif
 
-    {{-- Expiring soon --}}
-    @if ($expiringSoon->count() > 0)
-        <div class="alert-box alert-warning">
-            <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
-            <div>
-                <h4>{{ $expiringSoon->count() }} subscription(s) expiring within 7 days</h4>
-                <p>Contact these restaurants to arrange payment before expiry.</p>
-            </div>
-        </div>
-    @endif
-
-    {{-- Expired --}}
-    @if ($expired->count() > 0)
-        <div class="alert-box alert-danger">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
-            <div>
-                <h4>{{ $expired->count() }} subscription(s) have expired</h4>
-                <p>These restaurants need payment to continue using the platform.</p>
-            </div>
-        </div>
-    @endif
-
-    <div class="card">
-        <div class="card-header">
-            <h3>All Subscriptions</h3>
-        </div>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Restaurant</th>
-                        <th>Plan</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                        <th>Expires</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($restaurants as $restaurant)
-                        <tr>
-                            <td><a href="{{ route('admin.restaurants.show', $restaurant) }}" style="color: #1a8a4a; font-weight: 600;">{{ $restaurant->name }}</a></td>
-                            <td>{{ $restaurant->plan?->name ?: '—' }}</td>
-                            <td>{{ $restaurant->plan ? number_format($restaurant->plan->price) . ' ' . $restaurant->plan->currency : '—' }}</td>
-                            <td>
-                                @if ($restaurant->subscription_expires_at && $restaurant->subscription_expires_at->isPast())
-                                    <span class="badge badge-red">Expired</span>
-                                @elseif ($restaurant->subscription_expires_at && $restaurant->subscription_expires_at->lte(now()->addDays(7)))
-                                    <span class="badge badge-amber">Expiring Soon</span>
-                                @else
-                                    <span class="badge badge-{{ $restaurant->subscription_status === 'active' ? 'green' : 'red' }}">{{ ucfirst($restaurant->subscription_status) }}</span>
-                                @endif
-                            </td>
-                            <td>{{ $restaurant->subscription_expires_at?->format('M d, Y') ?: '—' }}</td>
-                            <td>
-                                <div style="display: flex; gap: 0.25rem;">
-                                    <a href="{{ route('admin.restaurants.show', $restaurant) }}" class="btn btn-outline btn-sm">Manage</a>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="6" class="empty">No subscriptions found</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+{{-- Expired --}}
+@if ($expired->count() > 0)
+<div class="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+    <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <div>
+        <p class="font-semibold">{{ $expired->count() }} subscription(s) have expired</p>
+        <p class="text-xs mt-0.5">These restaurants need payment to continue using the platform.</p>
     </div>
+</div>
+@endif
 
-    {{ $restaurants->links() }}
+<div class="bg-white rounded-xl border overflow-hidden">
+    <div class="px-5 py-4 border-b"><h3 class="text-sm font-semibold text-gray-900">All Subscriptions</h3></div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead><tr class="text-left text-xs text-gray-500 bg-gray-50/50">
+                <th class="px-5 py-2.5 font-medium">Restaurant</th>
+                <th class="px-5 py-2.5 font-medium">Plan</th>
+                <th class="px-5 py-2.5 font-medium">Price</th>
+                <th class="px-5 py-2.5 font-medium">Status</th>
+                <th class="px-5 py-2.5 font-medium">Expires</th>
+                <th class="px-5 py-2.5 font-medium">Actions</th>
+            </tr></thead>
+            <tbody>
+                @forelse ($restaurants as $restaurant)
+                <tr class="border-t border-gray-100 hover:bg-gray-50/50 transition-colors">
+                    <td class="px-5 py-2.5"><a href="{{ route('admin.restaurants.show', $restaurant) }}" class="text-xs font-medium text-gray-900 hover:text-emerald-600">{{ $restaurant->name }}</a></td>
+                    <td class="px-5 py-2.5 text-xs text-gray-700">{{ $restaurant->plan?->name ?: '—' }}</td>
+                    <td class="px-5 py-2.5 text-xs text-gray-700">{{ $restaurant->plan ? number_format($restaurant->plan->price) . ' ' . $restaurant->plan->currency : '—' }}</td>
+                    <td class="px-5 py-2.5">
+                        @if ($restaurant->subscription_expires_at && $restaurant->subscription_expires_at->isPast())
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-50 text-red-700 border border-red-100">Expired</span>
+                        @elseif ($restaurant->subscription_expires_at && $restaurant->subscription_expires_at->lte(now()->addDays(7)))
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-100">Expiring Soon</span>
+                        @else
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium {{ $restaurant->subscription_status === 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100' }}">{{ ucfirst($restaurant->subscription_status) }}</span>
+                        @endif
+                    </td>
+                    <td class="px-5 py-2.5 text-xs text-gray-500">{{ $restaurant->subscription_expires_at?->format('M d, Y') ?: '—' }}</td>
+                    <td class="px-5 py-2.5">
+                        <a href="{{ route('admin.restaurants.show', $restaurant) }}" class="px-2.5 py-1 text-[10px] font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-md transition-colors">Manage</a>
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="6" class="px-5 py-8 text-center text-gray-400 text-xs">No subscriptions found</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{ $restaurants->links() }}
 @endsection

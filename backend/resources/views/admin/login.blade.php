@@ -5,214 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>FoodPoint Admin — Login</title>
+    <link rel="dns-prefetch" href="//fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=Nunito:400,500,600,700,800,900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 50:'#e6f5f1',100:'#b3e0d4',200:'#80cbc0',300:'#4db5a8',400:'#1a9f8e',500:'#024938',600:'#023d30',700:'#013028',800:'#01241f',900:'#001816' },
+                        gold: { 50:'#fff5e0',100:'#ffe6b3',200:'#ffd680',300:'#ffc64d',400:'#ffb71a',500:'#f9ac00',600:'#d49700',700:'#b07c00',800:'#8c6100',900:'#684600' }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        .login-wrapper {
-            width: 100%;
-            max-width: 420px;
-        }
-        .login-card {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 2.5rem 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-        .logo-area {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .logo-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #1a8a4a, #16a34a);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 0.75rem;
-        }
-        .logo-icon svg { width: 28px; height: 28px; fill: white; }
-        .logo-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; letter-spacing: -0.025em; }
-        .logo-subtitle { font-size: 0.875rem; color: #64748b; margin-top: 0.25rem; }
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-            background: #fef3c7;
-            color: #92400e;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            margin-top: 0.75rem;
-        }
-        .badge svg { width: 12px; height: 12px; fill: currentColor; }
-        .form-group { margin-bottom: 1.25rem; }
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 0.5rem;
-        }
-        .form-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            font-size: 0.9375rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            transition: all 0.2s;
-            outline: none;
-            font-family: inherit;
-        }
-        .form-input:focus {
-            border-color: #1a8a4a;
-            box-shadow: 0 0 0 3px rgba(26, 138, 74, 0.1);
-        }
-        .form-input.is-invalid {
-            border-color: #dc2626;
-        }
-        .error-msg {
-            color: #dc2626;
-            font-size: 0.8125rem;
-            margin-top: 0.375rem;
-        }
-        .alert {
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 0.875rem;
-            margin-bottom: 1.25rem;
-        }
-        .alert-error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
-        }
-        .btn-login {
-            width: 100%;
-            padding: 0.875rem;
-            font-size: 0.9375rem;
-            font-weight: 700;
-            color: white;
-            background: linear-gradient(135deg, #1a8a4a, #16a34a);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        .btn-login:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 25px -5px rgba(26, 138, 74, 0.4);
-        }
-        .btn-login:active { transform: translateY(0); }
-        .btn-login svg { width: 18px; height: 18px; fill: white; }
-        .remember-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .remember-row input { width: 16px; height: 16px; accent-color: #1a8a4a; cursor: pointer; }
-        .remember-row label { font-size: 0.875rem; color: #64748b; cursor: pointer; user-select: none; }
-        .footer-text {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.8125rem;
-            color: #94a3b8;
-        }
-        .footer-text a { color: #1a8a4a; text-decoration: none; font-weight: 600; }
+        @keyframes simpleFadeIn { from { opacity:0; transform: translateY(8px) } to { opacity:1; transform: translateY(0) } }
+        body { animation: simpleFadeIn 0.4s ease-out both; }
     </style>
 </head>
-<body>
-    <div class="login-wrapper">
-        <div class="login-card">
-            <div class="logo-area">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
-                    </svg>
+<body class="font-['Nunito',sans-serif] antialiased bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-900 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+            {{-- Header --}}
+            <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 px-8 py-8 text-center">
+                <div class="w-16 h-16 mx-auto bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4">
+                    <svg class="w-10 h-10 text-gold-400" fill="currentColor" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
                 </div>
-                <div class="logo-title">FoodPoint</div>
-                <div class="logo-subtitle">Super Admin Panel</div>
-                <div class="badge">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                <h2 class="text-2xl font-extrabold text-white">FoodPoint Admin</h2>
+                <p class="text-emerald-100 text-sm mt-1">Super Admin Panel</p>
+                <div class="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-gold-400/20 text-gold-300 text-xs font-medium">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
                     Restricted Access
                 </div>
             </div>
 
-            @if ($errors->any())
-                <div class="alert alert-error">
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
-            @endif
+            {{-- Form --}}
+            <div class="p-8">
+                @if ($errors->any())
+                    <div class="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                        <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <ul class="list-disc pl-4 space-y-0.5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-            <form method="POST" action="{{ route('admin.login.post') }}">
-                @csrf
-                <div class="form-group">
-                    <label class="form-label" for="phone">Phone Number</label>
-                    <input
-                        id="phone"
-                        type="tel"
-                        name="email"
-                        value="{{ old('email') }}"
-                        class="form-input {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                        placeholder="2557XXXXXXXX"
-                        required
-                        autofocus
-                        autocomplete="tel"
-                    >
-                    @error('email')
-                        <div class="error-msg">{{ $message }}</div>
-                    @enderror
-                </div>
+                <form method="POST" action="{{ route('admin.login.post') }}">
+                    @csrf
+                    <div class="space-y-5">
+                        {{-- Phone --}}
+                        <div>
+                            <label for="phone" class="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                </div>
+                                <input id="phone" type="tel" name="email" value="{{ old('email') }}" required autofocus autocomplete="tel"
+                                    class="w-full pl-11 pr-4 py-2.5 rounded-lg border @error('email') border-red-300 ring-2 ring-red-100 @else border-gray-200 @enderror focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all text-sm"
+                                    placeholder="2557XXXXXXXX">
+                            </div>
+                            @error('email')
+                                <p class="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="password">Password</label>
-                    <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        class="form-input {{ $errors->has('password') ? 'is-invalid' : '' }}"
-                        placeholder="Enter your password"
-                        required
-                        autocomplete="current-password"
-                    >
-                    @error('password')
-                        <div class="error-msg">{{ $message }}</div>
-                    @enderror
-                </div>
+                        {{-- Password --}}
+                        <div>
+                            <label for="password" class="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                </div>
+                                <input id="password" type="password" name="password" required autocomplete="current-password"
+                                    class="w-full pl-11 pr-4 py-2.5 rounded-lg border @error('password') border-red-300 ring-2 ring-red-100 @else border-gray-200 @enderror focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all text-sm"
+                                    placeholder="Enter your password">
+                            </div>
+                            @error('password')
+                                <p class="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
 
-                <div class="remember-row">
-                    <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                    <label for="remember">Remember me</label>
-                </div>
+                        {{-- Remember --}}
+                        <div class="flex items-center">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}
+                                    class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                                <span class="text-sm text-gray-600">Remember me</span>
+                            </label>
+                        </div>
 
-                <button type="submit" class="btn-login">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/></svg>
-                    Sign In to Admin Panel
-                </button>
-            </form>
-
-            <div class="footer-text">
-                FoodPoint Restaurant Management Platform<br>
-                &copy; {{ date('Y') }} — Authorized Personnel Only
+                        {{-- Submit --}}
+                        <button type="submit" class="w-full py-3 text-sm font-bold text-gray-900 bg-gradient-to-r from-gold-300 to-gold-400 hover:from-gold-400 hover:to-gold-500 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                            Sign In to Admin Panel
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+
+        <p class="mt-6 text-center text-xs text-emerald-200/60">FoodPoint Restaurant Management Platform<br>&copy; {{ date('Y') }} — Authorized Personnel Only</p>
     </div>
 </body>
 </html>
