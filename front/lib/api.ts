@@ -568,8 +568,21 @@ export const api = {
     payment_method: "mobile_money" | "card"
     phone?: string
   }) =>
-    apiRequest<{ restaurant: Restaurant; message: string }>("/plans/subscribe", {
+    apiRequest<{
+      payment_id?: number
+      snippe_reference?: string
+      checkout_url?: string
+      status?: string
+      restaurant?: Restaurant
+      message: string
+    }>("/plans/subscribe", {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  checkSubscriptionPaymentStatus: (paymentId: number) =>
+    apiRequest<{
+      status: "pending" | "completed" | "failed"
+      subscription_status: string
+      plan_id: number | null
+    }>(`/plans/payment-status?payment_id=${paymentId}`),
 }
