@@ -315,17 +315,57 @@ export default function UpgradePage() {
       )}
 
       {/* Subscribe Dialog */}
-      <Dialog open={!!selectedPlan} onOpenChange={(open) => !open && setSelectedPlan(null)}>
+      <Dialog open={!!selectedPlan} onOpenChange={(open) => {
+        if (!open) {
+          if (pollRef.current) clearInterval(pollRef.current)
+          setSelectedPlan(null)
+          setPaymentStatus("idle")
+          setPhone("")
+        }
+      }}>
         <DialogContent>
-          {success ? (
+          {paymentStatus === "success" ? (
             <div className="flex flex-col items-center gap-3 py-6 text-center">
               <div className="flex size-16 items-center justify-center rounded-full bg-emerald-100">
                 <CheckCircleIcon className="size-8 text-emerald-600" />
               </div>
               <DialogTitle>Subscription Active!</DialogTitle>
               <DialogDescription>
-                Your plan has been activated. Enjoy your new features!
+                Your payment has been received and your plan is now active. Enjoy your new features!
               </DialogDescription>
+            </div>
+          ) : paymentStatus === "pending" ? (
+            <div className="flex flex-col items-center gap-4 py-6 text-center">
+              <div className="flex size-16 items-center justify-center rounded-full bg-blue-100">
+                <LoaderIcon className="size-8 text-blue-600 animate-spin" />
+              </div>
+              <DialogTitle>Payment in Progress</DialogTitle>
+              <DialogDescription className="max-w-sm">
+                {paymentMessage || "Please complete the payment on your phone. We are checking your payment status automatically..."}
+              </DialogDescription>
+              <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
+                <ClockIcon className="size-4 animate-pulse" />
+                Waiting for payment confirmation...
+              </div>
+            </div>
+          ) : paymentStatus === "failed" ? (
+            <div className="flex flex-col items-center gap-4 py-6 text-center">
+              <div className="flex size-16 items-center justify-center rounded-full bg-red-100">
+                <XCircleIcon className="size-8 text-red-600" />
+              </div>
+              <DialogTitle>Payment Failed</DialogTitle>
+              <DialogDescription>
+                {paymentMessage || "Your payment could not be processed. Please try again."}
+              </DialogDescription>
+              <Button
+                onClick={() => {
+                  setPaymentStatus("idle")
+                  setPaymentMessage("")
+                }}
+                className="rounded-xl"
+              >
+                Try Again
+              </Button>
             </div>
           ) : (
             <>
