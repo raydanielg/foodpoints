@@ -563,60 +563,160 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Recent Orders */}
+      {/* Recent Orders & Payments Table */}
       <Card className="rounded-xl">
         <CardHeader>
-          <CardDescription>Recent Orders</CardDescription>
           <CardTitle className="flex items-center gap-2 text-lg">
             <ReceiptIcon className="size-5 text-primary" />
-            Latest Activity
+            Recent Activity
           </CardTitle>
+          <CardAction>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => {
+                  const activeTab = document.querySelector('[data-state="active"][role="tab"]')?.getAttribute("value")
+                  if (activeTab === "payments") {
+                    exportToCSV(
+                      "recent-payments.csv",
+                      ["Reference", "Type", "Customer", "Phone", "Amount", "Status", "Date"],
+                      payments.map((p) => [
+                        p.snippe_reference || p.transaction_ref || `#${p.id}`,
+                        p.method,
+                        p.payer_label || "Walk-in",
+                        p.payer_phone || "-",
+                        `${formatCurrency(p.amount)} TZS`,
+                        p.status,
+                        formatDateTime(p.created_at),
+                      ])
+                    )
+                  } else {
+                    exportToCSV(
+                      "recent-orders.csv",
+                      ["Order ID", "Table", "Status", "Date"],
+                      stats.recent_orders.map((o) => [o.id, o.table_number, o.status, formatDateTime(o.created_at)])
+                    )
+                  }
+                }}
+              >
+                <DownloadIcon className="size-3.5" />
+                <span className="hidden sm:inline">Export</span>
+              </Button>
+            </div>
+          </CardAction>
         </CardHeader>
         <CardContent className="pt-0">
-          {stats.recent_orders.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              No orders yet.
-            </p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {stats.recent_orders.map((order) => (
-                <div
-                  key={order.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <ClipboardListIcon className="size-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        Table {order.table_number}
-                      </p>
-                      <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <ClockIcon className="size-3" />
-                        {new Date(order.created_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge
-                    variant={
-                      order.status === "served" ||
-                      order.status === "completed"
-                        ? "default"
-                        : order.status === "preparing"
-                          ? "secondary"
-                          : "outline"
-                    }
-                  >
-                    {order.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          )}
+          <Tabs defaultValue="orders">
+            <TabsList className="mb-3">
+              <TabsTrigger value="orders">
+                <ClipboardListIcon className="size-3.5" />
+                Recent Orders
+              </TabsTrigger>
+              <TabsTrigger value="payments">
+                <WalletIcon className="size-3.5" />
+                Recent Payments
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Recent Orders Tab */}
+            <TabsContent value="orders">
+              {stats.recent_orders.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">
+                  No orders yet.
+                </p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order ID</TableHead>
+                      <TableHead>Table</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {stats.recent_orders.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-mono text-xs">#{order.id}</TableCell>
+                        <TableCell className="font-medium">{order.table_number}</TableCell>
+                        <TableCell>{getOrderStatusBadge(order.status)}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{formatDateTime(order.created_at)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+              <div className="mt-3 flex justify-end">
+                <Link href="/dashboard/orders">
+                  <Button variant="ghost" size="sm" className="gap-1.5">
+                    View All Orders
+                    <ArrowRightIcon className="size-3.5" />
+                  </Button>
+                </Link>
+              </div>
+            </TabsContent>
+
+            {/* Recent Payments Tab */}
+            <TabsContent value="payments">
+              {payments.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">
+                  No payments yet.
+                </p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Reference</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead className="hidden sm:table-cell">Phone</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="hidden md:table-cell">Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {payments.map((payment) => (
+                      <TableRow key={payment.id}>
+                        <TableCell className="font-mono text-xs">
+                          {payment.snippe_reference || payment.transaction_ref || `#${payment.id}`}
+                        </TableCell>
+                        <TableCell>
+                          <span className="flex items-center gap-1.5">
+                            {getMethodIcon(payment.method)}
+                            <span className="text-xs">{payment.method}</span>
+                          </span>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {payment.payer_label || "Walk-in"}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
+                          {payment.payer_phone || "-"}
+                        </TableCell>
+                        <TableCell className="font-medium tabular-nums">
+                          {formatCurrency(payment.amount)} TZS
+                        </TableCell>
+                        <TableCell>{getPaymentStatusBadge(payment.status)}</TableCell>
+                        <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
+                          {formatDateTime(payment.created_at)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+              <div className="mt-3 flex justify-end">
+                <Link href="/dashboard/payments">
+                  <Button variant="ghost" size="sm" className="gap-1.5">
+                    View All Payments
+                    <ArrowRightIcon className="size-3.5" />
+                  </Button>
+                </Link>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
