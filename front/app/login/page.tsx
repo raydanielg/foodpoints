@@ -15,11 +15,6 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import {
@@ -32,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { api, setToken, type ApiError } from "@/lib/api"
+import { toast } from "@/components/ui/toast"
 
 type Mode = "login" | "register"
 
@@ -39,7 +35,6 @@ export default function AuthPage() {
   const [mode, setMode] = React.useState<Mode>("login")
   const [showPassword, setShowPassword] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState<ApiError | null>(null)
 
   const [form, setForm] = React.useState({
     name: "",
@@ -55,12 +50,10 @@ export default function AuthPage() {
 
   const switchMode = (newMode: Mode) => {
     setMode(newMode)
-    setError(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
     setLoading(true)
 
     try {
@@ -83,7 +76,14 @@ export default function AuthPage() {
         window.location.href = "/dashboard"
       }
     } catch (err) {
-      setError(err as ApiError)
+      const apiErr = err as ApiError
+      toast.add({
+        title: "Authentication Error",
+        description: apiErr.errors
+          ? Object.values(apiErr.errors).flat().join(" ")
+          : apiErr.message,
+        type: "error",
+      })
     } finally {
       setLoading(false)
     }
@@ -246,17 +246,6 @@ export default function AuthPage() {
                   Sign Up
                 </button>
               </div>
-
-              {error && (
-                <Alert variant="destructive" className="mb-6">
-                  <AlertTitle>Authentication Error</AlertTitle>
-                  <AlertDescription>
-                    {error.errors
-                      ? Object.values(error.errors).flat().join(" ")
-                      : error.message}
-                  </AlertDescription>
-                </Alert>
-              )}
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 {mode === "register" && (
