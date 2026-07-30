@@ -19,12 +19,24 @@ class Restaurant extends Model
         'currency',
         'vat_percent',
         'subscription_status',
+        'owner_name',
+        'owner_phone',
+        'owner_id_type',
+        'owner_id_number',
+        'business_type',
+        'tin_number',
+        'restaurant_link',
+        'kyc_status',
+        'kyc_submitted_at',
+        'kyc_approved_at',
     ];
 
     protected function casts(): array
     {
         return [
             'vat_percent' => 'decimal:2',
+            'kyc_submitted_at' => 'datetime',
+            'kyc_approved_at' => 'datetime',
         ];
     }
 

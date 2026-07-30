@@ -57,9 +57,19 @@ class AuthController extends Controller
 
         DB::beginTransaction();
         try {
+            // Generate unique restaurant link slug
+            $baseSlug = \Illuminate\Support\Str::slug($validated['restaurant_name']);
+            $slug = $baseSlug;
+            $counter = 1;
+            while (Restaurant::where('restaurant_link', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter++;
+            }
+
             $restaurant = Restaurant::create([
                 'name' => $validated['restaurant_name'],
                 'subscription_status' => 'active',
+                'kyc_status' => 'pending',
+                'restaurant_link' => $slug,
             ]);
 
             $user = User::create([

@@ -39,6 +39,25 @@ export interface Restaurant {
   currency: string
   vat_percent: string
   subscription_status: string
+  owner_name: string | null
+  owner_phone: string | null
+  owner_id_type: "national_id" | "passport" | "driving_license" | null
+  owner_id_number: string | null
+  business_type: "individual" | "company" | "partnership" | null
+  tin_number: string | null
+  restaurant_link: string | null
+  kyc_status: "pending" | "approved" | "rejected"
+  kyc_submitted_at: string | null
+  kyc_approved_at: string | null
+}
+
+export interface KycPayload {
+  owner_name: string
+  owner_phone: string
+  owner_id_type: "national_id" | "passport" | "driving_license"
+  owner_id_number: string
+  business_type: "individual" | "company" | "partnership"
+  tin_number: string
 }
 
 export interface MenuCategory {
@@ -250,6 +269,15 @@ export const api = {
     apiRequest<{ restaurant: Restaurant }>("/restaurant", {
       method: "PUT",
       body: JSON.stringify(body),
+    }),
+  submitKyc: (body: KycPayload) =>
+    apiRequest<{ restaurant: Restaurant; message: string }>("/restaurant/kyc", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  regenerateLink: () =>
+    apiRequest<{ restaurant: Restaurant; message: string }>("/restaurant/regenerate-link", {
+      method: "POST",
     }),
   uploadImage: (file: File, type?: "logo" | "cover" | "avatar" | "menu_item") =>
     apiRequest<{ url: string; path: string }>("/upload", {

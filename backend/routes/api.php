@@ -35,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Restaurant
     Route::get('/restaurant', [RestaurantController::class, 'show']);
     Route::put('/restaurant', [RestaurantController::class, 'update']);
+    Route::post('/restaurant/kyc', [RestaurantController::class, 'submitKyc']);
+    Route::post('/restaurant/regenerate-link', [RestaurantController::class, 'regenerateLink']);
     Route::get('/restaurant/stats', [RestaurantController::class, 'stats']);
     Route::get('/restaurant/payments', [RestaurantController::class, 'paymentsIndex']);
 

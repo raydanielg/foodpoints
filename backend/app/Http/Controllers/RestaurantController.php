@@ -30,10 +30,64 @@ class RestaurantController extends Controller
             'phone' => 'sometimes|nullable|string',
             'currency' => 'sometimes|string|max:10',
             'vat_percent' => 'sometimes|numeric|min:0|max:100',
+            'owner_name' => 'sometimes|nullable|string|max:255',
+            'owner_phone' => 'sometimes|nullable|string|max:20',
+            'owner_id_type' => 'sometimes|nullable|in:national_id,passport,driving_license',
+            'owner_id_number' => 'sometimes|nullable|string|max:255',
+            'business_type' => 'sometimes|nullable|in:individual,company,partnership',
+            'tin_number' => 'sometimes|nullable|string|max:255',
         ]);
 
         $restaurant->update($validated);
         return response()->json(['restaurant' => $restaurant]);
+    }
+
+    public function submitKyc(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $restaurant = $user->restaurant;
+
+        $validated = $request->validate([
+            'owner_name' => ['required', 'string', 'max:255'],
+            'owner_phone' => ['required', 'string', 'max:20'],
+            'owner_id_type' => ['required', 'in:national_id,passport,driving_license'],
+            'owner_id_number' => ['required', 'string', 'max:255'],
+            'business_type' => ['required', 'in:individual,company,partnership'],
+            'tin_number' => ['required', 'string', 'max:255'],
+        ]);
+
+        // Auto-approve KYC
+        $restaurant->update([
+            ...$validated,
+            'kyc_status' => 'approved',
+            'kyc_submitted_at' => now(),
+            'kyc_approved_at' => now(),
+        ]);
+
+        return response()->json([
+            'restaurant' => $restaurant->fresh(),
+            'message' => 'KYC submitted and auto-approved successfully.',
+        ]);
+    }
+
+    public function regenerateLink(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $restaurant = $user->restaurant;
+
+        $baseSlug = \Illuminate\Support\Str::slug($restaurant->name);
+        $slug = $baseSlug;
+        $counter = 1;
+        while (Restaurant::where('restaurant_link', $slug)->where('id', '!=', $restaurant->id)->exists()) {
+            $slug = $baseSlug . '-' . $counter++;
+        }
+
+        $restaurant->update(['restaurant_link' => $slug]);
+
+        return response()->json([
+            'restaurant' => $restaurant->fresh(),
+            'message' => 'Restaurant link regenerated successfully.',
+        ]);
     }
 
     public function stats(Request $request): JsonResponse
