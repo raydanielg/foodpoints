@@ -8,6 +8,10 @@ import {
   MailIcon,
   UserIcon,
   UtensilsCrossedIcon,
+  QrCodeIcon,
+  WalletIcon,
+  ChefHatIcon,
+  BarChart3Icon,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -88,8 +92,18 @@ export default function AuthPage() {
   return (
     <div className="flex min-h-screen w-full">
       {/* Left side - Branding */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 p-12 lg:flex">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, white 0%, transparent 50%)" }} />
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-primary p-12 lg:flex">
+        {/* Cover image */}
+        <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/3394.jpg"
+            alt="Restaurant"
+            className="size-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/80 to-primary/70" />
+        </div>
+
         <div className="relative z-10 flex items-center gap-3 text-white">
           <Image
             src="/food-irradiation.png"
@@ -111,10 +125,50 @@ export default function AuthPage() {
           <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight">
             The future of restaurant management
           </h1>
-          <p className="max-w-md text-lg text-white/70">
+          <p className="mb-8 max-w-md text-lg text-white/70">
             QR-based ordering, split payments, kitchen display, and
             powerful management dashboards — all in one platform.
           </p>
+
+          {/* Feature highlights */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
+                <QrCodeIcon className="size-5" />
+              </div>
+              <div>
+                <p className="font-semibold">QR Code Ordering</p>
+                <p className="text-sm text-white/70">Customers scan &amp; order instantly</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
+                <WalletIcon className="size-5" />
+              </div>
+              <div>
+                <p className="font-semibold">Split Payments</p>
+                <p className="text-sm text-white/70">Let customers split bills easily</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
+                <ChefHatIcon className="size-5" />
+              </div>
+              <div>
+                <p className="font-semibold">Kitchen Display</p>
+                <p className="text-sm text-white/70">Real-time order management</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
+                <BarChart3Icon className="size-5" />
+              </div>
+              <div>
+                <p className="font-semibold">Analytics Dashboard</p>
+                <p className="text-sm text-white/70">Track revenue and performance</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="relative z-10 flex gap-8 text-white">
