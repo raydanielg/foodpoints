@@ -1,14 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 import { RestaurantSidebar } from "@/components/restaurant-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Spinner } from "@/components/ui/spinner"
-import { api, removeToken, type User } from "@/lib/api"
+import { api, removeToken, type User, type Restaurant } from "@/lib/api"
 
 export default function DashboardLayout({
   children,
@@ -16,7 +16,9 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [user, setUser] = React.useState<User | null>(null)
+  const [restaurant, setRestaurant] = React.useState<Restaurant | null>(null)
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
@@ -26,10 +28,10 @@ export default function DashboardLayout({
       return
     }
 
-    api
-      .me()
-      .then((res) => {
-        setUser(res.user)
+    Promise.all([api.me(), api.getRestaurant()])
+      .then(([meRes, restRes]) => {
+        setUser(meRes.user)
+        setRestaurant(restRes.restaurant)
         setLoading(false)
       })
       .catch(() => {
@@ -38,11 +40,29 @@ export default function DashboardLayout({
       })
   }, [router])
 
+  const kycApproved = restaurant?.kyc_status === "approved"
+  const isOnboarding = pathname === "/dashboard/onboarding"
+
+  React.useEffect(() => {
+    if (!loading && !kycApproved && !isOnboarding) {
+      router.replace("/dashboard/onboarding")
+    }
+  }, [loading, kycApproved, isOnboarding, router])
+
   if (loading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3">
         <Spinner className="size-8 text-muted-foreground" />
         <p className="shimmer text-sm text-muted-foreground">Loading&hellip;</p>
+      </div>
+    )
+  }
+
+  if (!kycApproved && !isOnboarding) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3">
+        <Spinner className="size-8 text-muted-foreground" />
+        <p className="shimmer text-sm text-muted-foreground">Redirecting&hellip;</p>
       </div>
     )
   }
