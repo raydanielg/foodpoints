@@ -71,7 +71,6 @@ export default function UpgradePage() {
   const [loading, setLoading] = React.useState(true)
   const [selectedPlan, setSelectedPlan] = React.useState<Plan | null>(null)
   const [processing, setProcessing] = React.useState(false)
-  const [success, setSuccess] = React.useState(false)
   const [paymentMethod, setPaymentMethod] = React.useState<"mobile_money" | "card">("mobile_money")
   const [phone, setPhone] = React.useState("")
   const [paymentStatus, setPaymentStatus] = React.useState<"idle" | "pending" | "success" | "failed">("idle")
